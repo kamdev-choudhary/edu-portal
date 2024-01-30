@@ -1,0 +1,26 @@
+<% layout('../views/layouts/boilerplates') -%>
+<div class="syllabus-table">
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th scope="col">SN</th>
+        <th scope="col">Class</th>
+        <th scope="col">Subject</th>
+        <th scope="col">Chapter Name</th>
+        <th scope="col">NO. of Lectures</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% let sn = 1 %> <% for(syllabus of syllabuses){ %>
+      <tr>
+        <td scope="row"><%= sn %></th>
+        <% sn = sn + 1; %>
+        <td><%= syllabus.class %></td>
+        <td><%= syllabus.subject %></td>
+        <td><%= syllabus.chapter_name %></td>
+        <td><%= syllabus.count %></td>
+      </tr>
+      <% } %>
+    </tbody>
+  </table>
+</div>
