@@ -8,16 +8,30 @@ import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 import PersonIcon from "@mui/icons-material/Person";
-import DraftsIcon from "@mui/icons-material/Drafts";
 import DescriptionIcon from "@mui/icons-material/Description";
+import SchoolIcon from "@mui/icons-material/School";
+import GroupsIcon from "@mui/icons-material/Groups";
 
 // Admin Sections
 import Users from "./Users";
-import Exams from "../exams/Exams";
+import ExamMaster from "./ExamMaster";
+import ErrorPage from "../ErrorPage";
 
 const sections = [
   { name: "User", id: "user", icon: <PersonIcon />, page: <Users /> },
-  { name: "Exam", id: "exam", icon: <DescriptionIcon />, page: <Exams /> },
+  { name: "Exam", id: "exam", icon: <DescriptionIcon />, page: <ExamMaster /> },
+  {
+    name: "Academic",
+    id: "academic",
+    icon: <SchoolIcon />,
+    page: <ErrorPage />,
+  },
+  {
+    name: "Batch",
+    id: "batch",
+    icon: <GroupsIcon />,
+    page: <ErrorPage />,
+  },
 ];
 
 const AdminPage = () => {

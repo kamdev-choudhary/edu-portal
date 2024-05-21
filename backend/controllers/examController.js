@@ -2,6 +2,29 @@ const ExamTemplate = require("../models/examTemplate");
 const Question = require("../models/questions");
 const Batch = require("../models/batch");
 
+module.exports.createTemplate = async (req, res, next) => {
+  try {
+    const newTemplate = new ExamTemplate(req.body);
+    const exam = await ExamTemplate.findOne({}, { examId: 1 }).sort({
+      examId: -1,
+    });
+    const examId = exam ? exam.examId : null;
+    newTemplate.examId = +examId + 1;
+    await newTemplate.save();
+    res.status(200).json("Template Created Successfully");
+  } catch (error) {
+    next(error);
+  }
+};
+
+module.exports.AssignExamToBatch = async (req, res, next) => {
+  const { id } = req.params;
+  const examTemp = await ExamTemplate.findById(id);
+  examTemp.examAssigned = req.body;
+  examTemp.save();
+  res.status(200).json({ msg: "Data Saved Succefully" });
+};
+
 module.exports.addToTemplate = async (req, res, next) => {
   let { questionId, examTemplateId } = req.body;
   try {
@@ -52,21 +75,6 @@ module.exports.viewExamTemplate = async (req, res, next) => {
       path: "questions",
     });
     res.status(200).json({ examTemplate });
-  } catch (error) {
-    next(error);
-  }
-};
-
-module.exports.createTemplate = async (req, res, next) => {
-  try {
-    const newTemplate = new ExamTemplate(req.body);
-    const exam = await ExamTemplate.findOne({}, { examId: 1 }).sort({
-      examId: -1,
-    });
-    const examId = exam ? exam.examId : null;
-    newTemplate.examId = +examId + 1;
-    await newTemplate.save();
-    res.status(200).json("Template Created Successfully");
   } catch (error) {
     next(error);
   }

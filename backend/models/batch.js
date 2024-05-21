@@ -15,20 +15,20 @@ const batchSchema = new Schema({
       ref: "User",
     },
   ],
-  examTemplates: [
-    {
-      type: Schema.Types.ObjectId,
-      ref: "ExamTemplate",
-    },
-  ],
-  slots: [
-    {
-      examTemplateId: String,
-      examDate: String,
-      examStartTime: String,
-      examEndTime: String,
-    },
-  ],
+  // examTemplates: [
+  //   {
+  //     type: Schema.Types.ObjectId,
+  //     ref: "ExamTemplate",
+  //   },
+  // ],
+  // slots: [
+  //   {
+  //     examTemplateId: String,
+  //     examDate: String,
+  //     examStartTime: String,
+  //     examEndTime: String,
+  //   },
+  // ],
 });
 
 const Batch = mongoose.model("Batch", batchSchema);

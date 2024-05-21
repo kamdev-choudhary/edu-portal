@@ -6,6 +6,7 @@ router.route("/addtotemplate").put(examController.addToTemplate);
 router.route("/createtemplate").put(examController.createTemplate);
 router.route("/").get(examController.viewExams);
 router.route("/templates/:id").get(examController.viewExamTemplate);
+router.route("/assigntobatch/:id").post(examController.AssignExamToBatch);
 
 router.route("/addtobatch").post(examController.addToBatch);
 module.exports = router;

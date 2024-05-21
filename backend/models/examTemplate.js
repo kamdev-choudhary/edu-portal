@@ -1,14 +1,29 @@
 const mongoose = require("mongoose");
-const Schema = mongoose.Schema;
-const Question = require("./questions");
+const { Schema } = mongoose;
 
-const formatDate = () => {
-  const date = new Date();
-  const day = String(date.getDate()).padStart(2, "0");
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const year = date.getFullYear();
-  return `${day}-${month}-${year}`;
-};
+// Sub-schema for batch assignment with time slot
+const batchAssignmentSchema = new Schema({
+  batchName: {
+    type: String,
+  },
+  batchId: {
+    type: Schema.Types.ObjectId,
+    ref: "Batch",
+    required: true,
+  },
+  examDate: {
+    type: String,
+    required: true,
+  },
+  examStartTime: {
+    type: String,
+    require: true,
+  },
+  examEndTime: {
+    type: String,
+    required: true,
+  },
+});
 
 const examTemplateSchema = new Schema({
   examId: String,
@@ -84,7 +99,14 @@ const examTemplateSchema = new Schema({
       ref: "Question",
     },
   ],
+  examAssigned: [batchAssignmentSchema], // Use the sub-schema here
 });
+
+// Function to format date, assumed to be already defined
+function formatDate() {
+  const date = new Date();
+  return date.toISOString();
+}
 
 const ExamTemplate = mongoose.model("ExamTemplate", examTemplateSchema);
 

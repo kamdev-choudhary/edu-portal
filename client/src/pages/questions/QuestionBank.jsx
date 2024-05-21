@@ -34,6 +34,7 @@ import {
   Grid,
   Modal,
   Button,
+  Typography,
 } from "@mui/material";
 
 import {
@@ -65,7 +66,7 @@ export default function QuestionBankPage() {
   const [refresh, setRefresh] = useState(false);
   const [showViewQuestion, setShowViewQuestion] = useState(false);
   const [showQuestionModal, setShowQuestionModal] = useState({
-    SingleCorrect: false,
+    singleCorrect: false,
     multiCorrect: false,
     Integer: false,
   });
@@ -204,13 +205,15 @@ export default function QuestionBankPage() {
       setCurrentQuestion(question);
     }
   };
-  const handleAddQuestion = (e) => {
-    const { name } = e.target;
+  const handleAddQuestion = (value) => {
+    console.log(value);
     setShowQuestionModal({
       ...showQuestionModal,
-      [name]: true,
+      [value]: true,
     });
   };
+
+  console.log(showQuestionModal);
 
   const handleCloseAddQuestion = (modalName) => {
     setShowQuestionModal({
@@ -751,25 +754,25 @@ export default function QuestionBankPage() {
                 <TableCell align="center">{question.subtopic}</TableCell>
                 <TableCell align="center">{question.difficultyLevel}</TableCell>
                 {editMode && (
-                  <TableCell scope="col" className="text-center">
+                  <TableCell align="center" scope="col" className="text-center">
                     <IconButton onClick={() => handleDeleteQuestion(question)}>
                       <DeleteIcon />
                     </IconButton>
                   </TableCell>
                 )}
                 {selectedTemplate && (
-                  <TableCell scope="col" className="text-center">
+                  <TableCell scope="col" align="center" className="text-center">
                     {!questionInExamTemplate.includes(question._id) ? (
-                      <button
+                      <Button
                         className="btn btn-outline-success"
                         onClick={() => handleQuestionToTemplate(question._id)}
                       >
                         Add
-                      </button>
+                      </Button>
                     ) : (
-                      <button className="btn btn-success" disabled>
+                      <Button className="btn btn-success" disabled>
                         Added
-                      </button>
+                      </Button>
                     )}
                   </TableCell>
                 )}
@@ -819,7 +822,9 @@ export default function QuestionBankPage() {
           <Box>
             <List>
               <ListItem disablePadding>
-                <ListItemButton>
+                <ListItemButton
+                  onClick={() => handleAddQuestion("singleCorrect")}
+                >
                   <ListItemText primary="Single Correct Question" />
                 </ListItemButton>
               </ListItem>
@@ -841,155 +846,51 @@ export default function QuestionBankPage() {
         </Box>
       </Modal>
 
-      {/* <Modal show={showQuestionTypeModal} onHide={handleShowQuestionTypeModal}>
-        <Modal.Header>
-          <Modal.Title>Add Question</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <div className="d-grid gap-2">
-            <button
-              className="btn btn-success"
-              type="button"
-              name="SingleCorrect"
-              onClick={handleAddQuestion}
-            >
-              Single Correct Question
-            </button>
-            <button
-              className="btn btn-success"
-              type="button"
-              name="multiCorrect"
-              onClick={handleAddQuestion}
-            >
-              Multi Correct Question
-            </button>
-            <button
-              className="btn btn-success"
-              type="button"
-              name="Integer"
-              onClick={handleAddQuestion}
-            >
-              Integer Type Question
-            </button>
-            <button
-              className="btn btn-success"
-              type="button"
-              name="multiCorrect"
-              onClick={handleAddQuestion}
-            >
-              Comprehensive Question
-            </button>
-          </div>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="danger" onClick={handleShowQuestionTypeModal}>
-            Close
-          </Button>
-        </Modal.Footer>
-      </Modal>
-
+      {/* Single Correct Modal */}
       <Modal
-        show={showQuestionModal.SingleCorrect}
-        onHide={() => handleCloseAddQuestion("SingleCorrect")}
-        dialogClassName="modal-xl"
+        open={showQuestionModal.singleCorrect}
+        onClose={() =>
+          setShowQuestionModal({ ...showQuestionModal, singleCorrect: false })
+        }
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
       >
-        <Modal.Header>
-          <Modal.Title>Single Correct Question</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          {filterData.classes}
-          <SingleCorrectQuestion
-            handleCloseAddQuestion={handleCloseAddQuestion}
-            selectedClass={filterData.classes}
-            selectedSubject={filterData.subject}
-            selectedTopic={filterData.topic}
-            selectedSubtopic={filterData.subtopic}
-          />
-        </Modal.Body>
-        <Modal.Footer>
-          <Button
-            variant="danger"
-            name="SingleCorrect"
-            onClick={() => handleCloseAddQuestion("SingleCorrect")}
-          >
-            Close
-          </Button>
-        </Modal.Footer>
+        <Box
+          sx={{
+            backgroundColor: "#fff",
+            height: "95vh",
+            margin: "2.5vh 2.5vw",
+            width: "95vw",
+            padding: 2,
+            overflow: "auto",
+            borderRadius: 2,
+          }}
+        >
+          <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+            <Typography variant="h5">Single Correct Question</Typography>
+            <Button
+              color="error"
+              variant="contained"
+              sx={{
+                textTransform: "none",
+                borderRadius: 10,
+              }}
+              onClick={() =>
+                setShowQuestionModal({
+                  ...showQuestionModal,
+                  singleCorrect: false,
+                })
+              }
+            >
+              Close
+            </Button>
+          </Box>
+          <hr />
+          <Box>
+            <SingleCorrectQuestion />
+          </Box>
+        </Box>
       </Modal>
-      <Modal
-        show={showQuestionModal.multiCorrect}
-        onHide={() => handleCloseAddQuestion("multiCorrect")}
-        dialogClassName="modal-xl"
-      >
-        <Modal.Header>
-          <Modal.Title>Multi Correct Question</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <MultiCorrectQuestion
-            handleCloseAddQuestion={handleCloseAddQuestion}
-            selectedClass={filterData.classes}
-            selectedSubject={filterData.subject}
-            selectedTopic={filterData.topic}
-            selectedSubtopic={filterData.subtopic}
-          />
-        </Modal.Body>
-        <Modal.Footer>
-          <Button
-            variant="danger"
-            name="multiCorrect"
-            onClick={() => handleCloseAddQuestion("multiCorrect")}
-          >
-            Close
-          </Button>
-        </Modal.Footer>
-      </Modal>
-      <Modal
-        show={showQuestionModal.Integer}
-        onHide={() => handleCloseAddQuestion("Integer")}
-        dialogClassName="modal-xl"
-      >
-        <Modal.Header>
-          <Modal.Title>Integer Type Question</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <IntegerType
-            handleCloseAddQuestion={handleCloseAddQuestion}
-            selectedClass={filterData.classes}
-            selectedSubject={filterData.subject}
-            selectedTopic={filterData.topic}
-            selectedSubtopic={filterData.subtopic}
-          />
-        </Modal.Body>
-        <Modal.Footer>
-          <Button
-            variant="danger"
-            name="Integer"
-            onClick={() => handleCloseAddQuestion("Integer")}
-          >
-            Close
-          </Button>
-        </Modal.Footer>
-      </Modal>
-
-      <Modal
-        show={showViewQuestion}
-        onHide={handleShowViewQuestion}
-        dialogClassName="modal-xl"
-      >
-        <Modal.Header> View Question</Modal.Header>
-        <Modal.Body>
-          <ViewQuestion
-            currQuestion={currQuestion}
-            handleShowViewQuestion={handleShowViewQuestion}
-            setRefresh={setRefresh}
-          />
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="danger" onClick={handleShowViewQuestion}>
-            Close
-          </Button>
-        </Modal.Footer>
-      </Modal> */}
     </>
   );
 }

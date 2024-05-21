@@ -6,10 +6,8 @@ import TabList from "@mui/lab/TabList";
 import TabPanel from "@mui/lab/TabPanel";
 
 // ExamPages
-import OnlineExamStudent from "./OnlineExamStudent";
-import OfflineExamStudent from "./OfflineExamStudent";
-
-export default function LabTabs() {
+import ExamMasterOnline from "../exams/ExamMasterOnline";
+export default function ExamMaster() {
   const [value, setValue] = React.useState("1");
 
   const handleChange = (event, newValue) => {
@@ -26,10 +24,10 @@ export default function LabTabs() {
           </TabList>
         </Box>
         <TabPanel value="1">
-          <OnlineExamStudent />
+          <ExamMasterOnline />
         </TabPanel>
         <TabPanel value="2">
-          <OfflineExamStudent />
+          <p>Exam offline</p>
         </TabPanel>
       </TabContext>
     </Box>
