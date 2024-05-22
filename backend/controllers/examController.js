@@ -18,11 +18,33 @@ module.exports.createTemplate = async (req, res, next) => {
 };
 
 module.exports.AssignExamToBatch = async (req, res, next) => {
-  const { id } = req.params;
-  const examTemp = await ExamTemplate.findById(id);
-  examTemp.examAssigned = req.body;
-  examTemp.save();
-  res.status(200).json({ msg: "Data Saved Succefully" });
+  try {
+    const { id } = req.params;
+    const newAssignment = req.body;
+    const { batchId } = newAssignment;
+
+    // Fetch the exam template by ID
+    const examTemp = await ExamTemplate.findById(id);
+
+    if (!examTemp) {
+      return res.status(404).json({ msg: "Exam template not found" });
+    }
+
+    // Check if the batchId already exists in the examAssigned array
+    const alreadyAssigned = examTemp.examAssigned.some((assignment) => {
+      return assignment.batchId.toString() == batchId;
+    });
+
+    if (!alreadyAssigned) {
+      examTemp.examAssigned.push(newAssignment);
+      await examTemp.save();
+      res.status(200).json({ msg: "Data Saved Successfully" });
+    } else {
+      res.status(200).json({ msg: "Already Added" });
+    }
+  } catch (error) {
+    next(error);
+  }
 };
 
 module.exports.addToTemplate = async (req, res, next) => {

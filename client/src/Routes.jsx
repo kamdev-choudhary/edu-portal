@@ -10,48 +10,63 @@ import BookIssue from "./pages/library/BookIssue";
 // Scholar
 import StudentDashboard from "./pages/dashboard/ScholarDashboard";
 import Exams from "./pages/exams/Exams";
+import LecturePage from "./pages/lectures/LecturePage";
+
+import Profile from "./components/Profile";
 
 export const routes = [
   {
     path: "/dashboard",
     name: "Dashboard",
     available: ["admin"],
-    element: <AdminDashboard />, // Use JSX element here
+    element: <AdminDashboard />,
   },
   {
     path: "/dashboard",
     name: "Dashboard",
     available: ["student"],
-    element: <StudentDashboard />, // Use JSX element here
+    element: <StudentDashboard />,
   },
   {
     path: "/question-bank",
     name: "Dashboard",
     available: ["admin"],
-    element: <QuestionBank />, // Use JSX element here
+    element: <QuestionBank />,
   },
   {
     path: "/library",
     name: "Libary",
     available: ["admin"],
-    element: <Library />, // Use JSX element here
+    element: <Library />,
   },
   {
     path: "/admin",
     name: "Admin",
     available: ["admin"],
-    element: <AdminPage />, // Use JSX element here
+    element: <AdminPage />,
   },
   {
     path: "/library/issue",
     name: "Libary",
     available: ["admin"],
-    element: <BookIssue />, // Use JSX element here
+    element: <BookIssue />,
   },
   {
     path: "/exams",
     name: "Exams",
     available: ["admin", "student"],
-    element: <Exams />, // Use JSX element here
+    element: <Exams />,
+  },
+  {
+    path: "/profile",
+    name: "Profile",
+    available: ["admin", "student"],
+    element: <Profile />,
+  },
+  {
+    path: "/lectures",
+    name: "Lectures",
+    available: ["admin", "student"],
+    element: <LecturePage />,
   },
 ];

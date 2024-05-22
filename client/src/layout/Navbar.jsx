@@ -25,7 +25,7 @@ const pages = [
   { name: "Admin", path: "/admin", available: ["admin"] },
   { name: "Question Bank", path: "/question-bank", available: ["admin"] },
   { name: "Library", path: "/library", available: ["admin"] },
-  { name: "Exams", path: "/exams", available: ["admin"] },
+  { name: "Exams", path: "/exams", available: ["admin", "student"] },
   { name: "Lectures", path: "/lectures", available: ["admin", "student"] },
 ];
 
@@ -168,7 +168,10 @@ function Navbar() {
               onClose={handleCloseUserMenu}
             >
               <MenuItem onClick={handleCloseUserMenu}>
-                <NavLink style={{ textDecoration: "none" }} to="/profile">
+                <NavLink
+                  style={{ textDecoration: "none", color: "#000" }}
+                  to="/profile"
+                >
                   Profile
                 </NavLink>
               </MenuItem>
@@ -178,7 +181,9 @@ function Navbar() {
                   logoutUser();
                 }}
               >
-                <NavLink style={{ textDecoration: "none" }}>Profile</NavLink>
+                <NavLink style={{ textDecoration: "none", color: "#000" }}>
+                  Logout
+                </NavLink>
               </MenuItem>
             </Menu>
           </Box>

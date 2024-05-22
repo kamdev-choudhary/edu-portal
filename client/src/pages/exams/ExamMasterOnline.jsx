@@ -121,18 +121,30 @@ export default function ExamMasterOnline() {
     }
   };
 
-  const handleAssignExamToBatch = async () => {
-    const currTempId = currTemplate._id;
-    const response = await axios.post(
-      `${API_URL}/exams/assigntobatch/${currTempId}`,
-      newAssignData
-    );
-    if (response.status === 200) {
-      console.log(response.data.msg);
-      setShowAssignToBatch(false);
-      setCurrTemplate("");
-    }
-  };
+ const handleAssignExamToBatch = async () => {
+   const currTempId = currTemplate._id;
+   const url = `${API_URL}/exams/assigntobatch/${currTempId}`;
+   const options = {
+     method: "POST",
+     headers: {
+       "Content-Type": "application/json",
+     },
+     body: JSON.stringify(newAssignData),
+   };
+
+   try {
+     const response = await fetch(url, options);
+     if (response.ok) {
+       // equivalent to response.status === 200
+       const data = await response.json();
+       console.log(data.msg);
+       setShowAssignToBatch(false);
+     }
+   } catch (error) {
+     console.error("Error:", error);
+   }
+ };
+
 
   if (isLoading) {
     return (
@@ -217,7 +229,6 @@ export default function ExamMasterOnline() {
     );
   }
 
-  console.log(currTemplate);
   return (
     <>
       <Grid container spacing={1}>

@@ -29,6 +29,10 @@ const userSchema = new Schema({
     default: "student",
   },
 
+  batchId: {
+    type: String,
+  },
+
   password: String,
 });
 
@@ -57,7 +61,7 @@ userSchema.methods.generateToken = async function () {
         mobile: this.mobile,
         email: this.email,
         isAdmin: this.isAdmin,
-        batchId: this.batchId,
+        batchId: this.batchId || "",
         role: this.role,
       },
       process.env.JWT_KEY,

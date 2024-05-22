@@ -191,10 +191,6 @@ export default function QuestionBankPage() {
     setRefresh(!refresh);
   };
 
-  const handleShowQuestionTypeModal = () => {
-    setShowQuestionTypeModal(!showQuestionTypeModal);
-  };
-
   const handleChangeEditMode = () => {
     setEditMode(!editMode);
   };
@@ -212,8 +208,6 @@ export default function QuestionBankPage() {
       [value]: true,
     });
   };
-
-  console.log(showQuestionModal);
 
   const handleCloseAddQuestion = (modalName) => {
     setShowQuestionModal({

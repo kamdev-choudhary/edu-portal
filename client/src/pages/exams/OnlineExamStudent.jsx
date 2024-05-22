@@ -40,6 +40,8 @@ export default function OnlineExamStudent() {
   const { username, userId, batch } = useAuth();
   const [exams, setExams] = useState([]);
 
+  console.log(batch);
+
   useEffect(() => {
     const getExamData = async () => {
       const response = await axios.get(`${API_URL}/batch`);

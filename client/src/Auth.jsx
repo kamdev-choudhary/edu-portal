@@ -24,6 +24,7 @@ export const AuthProvider = ({ children }) => {
     username = decoded.name;
     role = decoded.role;
     batchId = decoded.batchId;
+    console.log(decoded);
   }
 
   const logoutUser = () => {

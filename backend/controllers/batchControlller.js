@@ -22,9 +22,7 @@ module.exports.AddBatch = async (req, res, next) => {
 module.exports.getCurrBatch = async (req, res, next) => {
   try {
     let { id } = req.params;
-    const batch = await Batch.findById(id).populate({
-      path: "examTemplates",
-    });
+    const batch = await Batch.findById(id);
 
     res.status(200).json({ batch });
   } catch (error) {
