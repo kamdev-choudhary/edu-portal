@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { CircularProgress } from "@mui/material";
 import axios from "axios";
+import { Container, Paper, Button, Checkbox } from "@mui/material";
 
 const API_URL = import.meta.env.VITE_REACT_APP_API_URL;
 
@@ -12,6 +13,7 @@ function Home() {
   const [loading, setLoading] = useState(true);
   const [exam, setExam] = useState([]);
   const [showInstruction, setShowInstructions] = useState(true);
+  const [checkboxChecked, setCheckBoxChecked] = useState(false);
 
   useEffect(() => {
     const segments = location.pathname.split("/").filter((segment) => segment);
@@ -42,31 +44,51 @@ function Home() {
       </Box>
     );
   }
-  console.log(exam);
 
   return (
     <>
-      {showInstruction ? (
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "center",
-            border: 1,
-            height: "99vh",
-          }}
-        >
-          <div>
-            <p>Exam Name : {exam?.examName}</p>
-          </div>
-          <Typography
-            dangerouslySetInnerHTML={{ __html: exam.examInstruction }}
-          />
-        </Box>
-      ) : (
-        <Box>
-          <p>Start exam</p>
-        </Box>
-      )}
+      <Container maxWidth="xl" elevation={10}>
+        <Paper elevation={4}>
+          {showInstruction ? (
+            <Box
+              sx={{
+                justifyContent: "center",
+                padding: 2,
+                backgroundColor: "#e1e1e1",
+                height: "99vh",
+                flexDirection: "row",
+              }}
+            >
+              <div>
+                <p>Exam Name : {exam?.examName}</p>
+              </div>
+              <div>
+                <Typography
+                  dangerouslySetInnerHTML={{ __html: exam.examInstruction }}
+                />
+              </div>
+              <Box sx={{ display: "flex", alignItems: "center" }}>
+                <Checkbox
+                  checked={checkboxChecked}
+                  onChange={() => setCheckBoxChecked(!checkboxChecked)}
+                />
+                <Typography>I have read all the instructions</Typography>
+              </Box>
+              <Button
+                disabled={!checkboxChecked}
+                onClick={() => setShowInstructions(false)}
+                variant="contained"
+              >
+                Start Exam
+              </Button>
+            </Box>
+          ) : (
+            <Box>
+              <p>Start exam</p>
+            </Box>
+          )}
+        </Paper>
+      </Container>
     </>
   );
 }
