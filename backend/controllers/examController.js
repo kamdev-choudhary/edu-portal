@@ -18,6 +18,18 @@ module.exports.createTemplate = async (req, res, next) => {
   }
 };
 
+module.exports.getExam = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const exam = await ExamTemplate.findById(id)
+      .select("-examAssigned")
+      .populate("questions");
+    res.status(200).json(exam);
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports.getExams = async (req, res, next) => {
   try {
     const { id } = req.params;

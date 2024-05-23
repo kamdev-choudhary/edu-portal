@@ -63,12 +63,13 @@ export default function OnlineExamStudent() {
     );
   };
 
-  const handleStartExam = () => {
+  const handleStartExam = (examId) => {
+    console.log("hah", examId);
     const screenWidth = window.screen.width;
     const screenHeight = window.screen.height;
 
     window.open(
-      `http://localhost:5173/exams/start/${batchId}`,
+      `http://localhost:5173/exams/start/${examId}`,
       "Exams",
       `width=${screenWidth},height=${screenHeight},resizable=yes,scrollbars=yes`
     );
@@ -117,7 +118,6 @@ export default function OnlineExamStudent() {
                 const filteredExamAssigned = exam.examAssigned.find(
                   (assignment) => assignment.batchId === batchId
                 );
-                console.log(filteredExamAssigned);
                 return (
                   <StyledTableRow key={exam._id}>
                     <StyledTableCell align="center">
@@ -144,7 +144,7 @@ export default function OnlineExamStudent() {
                     <StyledTableCell align="center"></StyledTableCell>
                     <StyledTableCell align="center">
                       <Button
-                        onClick={handleStartExam}
+                        onClick={() => handleStartExam(exam._id)}
                         variant="contained"
                         sx={{ borderRadius: 10 }}
                       >
