@@ -32,7 +32,7 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
   "&:nth-of-type(odd)": {
     backgroundColor: theme.palette.action.hover,
   },
-  // hide last border
+
   "&:last-child td, &:last-child th": {
     border: 0,
   },
@@ -55,21 +55,12 @@ export default function OnlineExamStudent() {
     }
   }, []);
 
-  const handleClick = () => {
-    window.open(
-      "http://127.0.0.1:5173/exams", // URL of the page to open
-      "newwindow", // Name of the new window
-      "width=800,height=600" // Window features (size, etc.)
-    );
-  };
-
   const handleStartExam = (examId) => {
-    console.log("hah", examId);
     const screenWidth = window.screen.width;
     const screenHeight = window.screen.height;
 
     window.open(
-      `http://localhost:5173/exams/start/${examId}`,
+      `http://localhost:5173/exams/start/${userId}/${examId}`,
       "Exams",
       `width=${screenWidth},height=${screenHeight},resizable=yes,scrollbars=yes`
     );
@@ -91,7 +82,6 @@ export default function OnlineExamStudent() {
       >
         <CurrentTime />
       </Box>
-      <Button onClick={handleClick}>CLick</Button>
       {batchId === "" ? (
         <Box sx={{ display: "flex", justifyContent: "center" }}>
           <Typography>Join a batch to Get Exams</Typography>

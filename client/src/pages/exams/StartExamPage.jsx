@@ -11,16 +11,16 @@ function Home() {
   const [pathSegments, setPathSegments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [exam, setExam] = useState([]);
+  const [showInstruction, setShowInstructions] = useState(true);
 
   useEffect(() => {
     const segments = location.pathname.split("/").filter((segment) => segment);
     setPathSegments(segments);
-    const examId = segments[2];
+    const examId = segments[3];
 
     const getExam = async () => {
       try {
         const response = await axios.get(`${API_URL}/exams/start/${examId}`);
-        console.log(response.status);
         if (response.status === 200) {
           setExam(response.data);
           setLoading(false);
@@ -42,13 +42,32 @@ function Home() {
       </Box>
     );
   }
+  console.log(exam);
 
   return (
-    <div>
-      <h1>Home Page</h1>
-
-      <p>Exam Name : {exam?.examName}</p>
-    </div>
+    <>
+      {showInstruction ? (
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            border: 1,
+            height: "99vh",
+          }}
+        >
+          <div>
+            <p>Exam Name : {exam?.examName}</p>
+          </div>
+          <Typography
+            dangerouslySetInnerHTML={{ __html: exam.examInstruction }}
+          />
+        </Box>
+      ) : (
+        <Box>
+          <p>Start exam</p>
+        </Box>
+      )}
+    </>
   );
 }
 
