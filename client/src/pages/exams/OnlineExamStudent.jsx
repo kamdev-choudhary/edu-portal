@@ -76,7 +76,6 @@ export default function OnlineExamStudent() {
           marginBottom: 1,
           display: "flex",
           justifyContent: "center",
-          backgroundColor: "#e5e5e5",
           fontWeight: "bold",
         }}
       >

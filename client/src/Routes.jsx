@@ -71,7 +71,7 @@ export const routes = [
     element: <LecturePage />,
   },
   {
-    path: "/exams/*",
+    path: "/exams/start/*",
     name: "Lectures",
     available: ["admin", "student"],
     element: <StartExamPage />,
