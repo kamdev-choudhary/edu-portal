@@ -7,6 +7,7 @@ import {
 } from "react-router-dom";
 import AuthPage from "./pages/auth/AuthPage";
 import DefaulLayout from "./layout/DefaulLayout";
+import StartExamPage from "./pages/exams/StartExamPage";
 
 function App() {
   const { isLoggedIn } = useAuth();
@@ -17,6 +18,7 @@ function App() {
         {isLoggedIn ? (
           <>
             <Route path="/" element={<Navigate to="/dashboard" />} />
+            <Route exact path="/exams/start/*" element={<StartExamPage />} />
             <Route path="*" element={<DefaulLayout />} />
           </>
         ) : (

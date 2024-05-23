@@ -1,6 +1,7 @@
 const ExamTemplate = require("../models/examTemplate");
 const Question = require("../models/questions");
 const Batch = require("../models/batch");
+const mongoose = require("mongoose");
 
 module.exports.createTemplate = async (req, res, next) => {
   try {
@@ -12,6 +13,23 @@ module.exports.createTemplate = async (req, res, next) => {
     newTemplate.examId = +examId + 1;
     await newTemplate.save();
     res.status(200).json("Template Created Successfully");
+  } catch (error) {
+    next(error);
+  }
+};
+
+module.exports.getExams = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const objectId = new mongoose.Types.ObjectId(id);
+    const exams = await ExamTemplate.find({
+      examAssigned: {
+        $elemMatch: {
+          batchId: objectId,
+        },
+      },
+    });
+    res.status(200).json(exams);
   } catch (error) {
     next(error);
   }

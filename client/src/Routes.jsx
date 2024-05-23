@@ -13,6 +13,7 @@ import Exams from "./pages/exams/Exams";
 import LecturePage from "./pages/lectures/LecturePage";
 
 import Profile from "./components/Profile";
+import StartExamPage from "./pages/exams/StartExamPage";
 
 export const routes = [
   {
@@ -68,5 +69,11 @@ export const routes = [
     name: "Lectures",
     available: ["admin", "student"],
     element: <LecturePage />,
+  },
+  {
+    path: "/exams/*",
+    name: "Lectures",
+    available: ["admin", "student"],
+    element: <StartExamPage />,
   },
 ];
