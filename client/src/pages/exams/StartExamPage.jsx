@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
-import { CircularProgress } from "@mui/material";
 import axios from "axios";
 import { useAuth } from "../../Auth";
 import CurrentTime from "../../components/CurrentTime";
@@ -24,6 +23,7 @@ import {
   Box,
   Typography,
   useMediaQuery,
+  CircularProgress,
 } from "@mui/material";
 import { useTheme, styled } from "@mui/material/styles";
 
@@ -44,7 +44,6 @@ function Home() {
   const [value, setValue] = useState("");
   const [examAssigned, setExamAssigned] = useState([]);
 
-  console.log(exam);
   const theme = useTheme();
   const isLargeScreen = useMediaQuery(theme.breakpoints.up("lg"));
 
@@ -59,7 +58,11 @@ function Home() {
         if (response.status === 200) {
           setExam(response.data);
           setLoading(false);
-          setQuestions(response.data.questions);
+          setQuestions(response.data.exam.questions);
+          localStorage.setItem(
+            "questions",
+            JSON.stringify(response.data.exam.questions)
+          );
           setExamAssigned(
             response?.data?.examAssigned?.filter(
               (examAssign) => examAssign.batchId === batchId
@@ -73,6 +76,8 @@ function Home() {
     };
     getExam();
   }, []);
+
+  console.log(JSON.parse(localStorage.getItem("questions")));
 
   const handleChange = (event) => {
     setValue(event.target.value);
@@ -188,16 +193,14 @@ function Home() {
                 order={{ xs: 2, sm: 1 }}
                 style={{ height: "100%", position: "relative" }}
               >
-                {exam.exam &&
-                  exam.exam.questions &&
-                  currentQuestionIndex < exam.exam.questions.length && (
+                {questions &&
+                  questions &&
+                  currentQuestionIndex < questions.length && (
                     <>
                       <Typography>Question : </Typography>
                       <Typography
                         dangerouslySetInnerHTML={{
-                          __html:
-                            exam.exam.questions[currentQuestionIndex]
-                              .questionText,
+                          __html: questions[currentQuestionIndex].questionText,
                         }}
                       />
                       <hr />
@@ -212,48 +215,24 @@ function Home() {
                           onChange={handleChange}
                         >
                           <FormControlLabel
-                            value={
-                              exam.exam.questions[currentQuestionIndex].option1
-                                .text
-                            }
+                            value={questions[currentQuestionIndex].option1.text}
                             control={<Radio />}
-                            label={
-                              exam.exam.questions[currentQuestionIndex].option1
-                                .text
-                            }
+                            label={questions[currentQuestionIndex].option1.text}
                           />
                           <FormControlLabel
-                            value={
-                              exam.exam.questions[currentQuestionIndex].option2
-                                .text
-                            }
+                            value={questions[currentQuestionIndex].option2.text}
                             control={<Radio />}
-                            label={
-                              exam.exam.questions[currentQuestionIndex].option2
-                                .text
-                            }
+                            label={questions[currentQuestionIndex].option2.text}
                           />
                           <FormControlLabel
-                            value={
-                              exam.exam.questions[currentQuestionIndex].option3
-                                .text
-                            }
+                            value={questions[currentQuestionIndex].option3.text}
                             control={<Radio />}
-                            label={
-                              exam.exam.questions[currentQuestionIndex].option3
-                                .text
-                            }
+                            label={questions[currentQuestionIndex].option3.text}
                           />
                           <FormControlLabel
-                            value={
-                              exam.exam.questions[currentQuestionIndex].option4
-                                .text
-                            }
+                            value={questions[currentQuestionIndex].option4.text}
                             control={<Radio />}
-                            label={
-                              exam.exam.questions[currentQuestionIndex].option4
-                                .text
-                            }
+                            label={questions[currentQuestionIndex].option4.text}
                           />
                         </RadioGroup>
                       </FormControl>
@@ -296,9 +275,7 @@ function Home() {
                     sx={{ borderRadius: 100 }}
                     onClick={handlePreviousQuestion}
                     disabled={
-                      !exam.exam ||
-                      !exam.exam.questions ||
-                      currentQuestionIndex === 0
+                      !exam.exam || !questions || currentQuestionIndex === 0
                     }
                   >
                     Previous
@@ -310,8 +287,8 @@ function Home() {
                     onClick={handleNextQuestion}
                     disabled={
                       !exam.exam ||
-                      !exam.exam.questions ||
-                      currentQuestionIndex === exam.exam.questions.length - 1
+                      !questions ||
+                      currentQuestionIndex === questions.length - 1
                     }
                   >
                     Next

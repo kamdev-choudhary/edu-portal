@@ -1,10 +1,15 @@
 import { createContext, useContext, useState } from "react";
 import { jwtDecode } from "jwt-decode";
+import CryptoJS from "crypto-js";
 
 export const AuthContext = createContext();
+const SECRET_KEY = import.meta.env.VITE_REACT_APP_SECRET_KEY;
+const cipherText = CryptoJS.AES.encrypt("token", SECRET_KEY);
+const bytesText = CryptoJS.AES.decrypt(cipherText, SECRET_KEY);
+const originalText = bytesText.toString(CryptoJS.enc.Utf8);
 
 export const AuthProvider = ({ children }) => {
-  const [token, setToken] = useState(localStorage.getItem("token"));
+  const [token, setToken] = useState(localStorage.getItem(originalText));
   let isAdmin = false;
   let userId = "";
   let batchId = "";
@@ -12,8 +17,11 @@ export const AuthProvider = ({ children }) => {
   let role = "";
 
   const storeTokenInLS = (serverToken) => {
-    localStorage.setItem("token", serverToken);
-    setToken(serverToken);
+    const cipherToken = CryptoJS.AES.encrypt(serverToken, SECRET_KEY);
+    localStorage.setItem(cipherText, cipherToken);
+    const bytesToken = CryptoJS.AES.decrypt(cipherToken, SECRET_KEY);
+    const originalToken = bytesToken.toString(CryptoJS.enc.Utf8);
+    setToken(originalToken);
   };
 
   const isLoggedIn = !!token;
@@ -27,12 +35,12 @@ export const AuthProvider = ({ children }) => {
   }
 
   const logoutUser = () => {
-    localStorage.removeItem("token");
+    localStorage.removeItem(cipherText);
     setToken("");
     isAdmin = false;
-    accountType = "";
+    role = "";
     batchId = "";
-    name = "";
+    username = "";
     userId = "";
   };
 
