@@ -8,6 +8,18 @@ const examResponsesSchema = new Schema({
     type: Schema.Types.ObjectId,
     ref: "ExamTemplate",
   },
+  examStatus: String,
+  response: [
+    {
+      questionId: String,
+      timeTaken: String,
+      answer: [
+        {
+          type: String,
+        },
+      ],
+    },
+  ],
 });
 
 const ExamResponse = mongoose.model("ExamResponse", examResponsesSchema);

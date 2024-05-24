@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { CircularProgress } from "@mui/material";
 import axios from "axios";
+import { useAuth } from "../../Auth";
 
 import {
   Accordion,
@@ -31,6 +32,7 @@ const API_URL = import.meta.env.VITE_REACT_APP_API_URL;
 
 function Home() {
   const location = useLocation();
+  const { batchId } = useAuth();
   const [pathSegments, setPathSegments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [exam, setExam] = useState([]);
@@ -39,7 +41,9 @@ function Home() {
   const [questions, setQuestions] = useState([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [value, setValue] = useState("");
+  const [examAssigned, setExamAssigned] = useState([]);
 
+  console.log(exam);
   const theme = useTheme();
   const isLargeScreen = useMediaQuery(theme.breakpoints.up("lg"));
 
@@ -55,6 +59,11 @@ function Home() {
           setExam(response.data);
           setLoading(false);
           setQuestions(response.data.questions);
+          setExamAssigned(
+            response?.data?.examAssigned?.filter(
+              (examAssign) => examAssign.batchId === batchId
+            )[0]
+          );
         }
       } catch (error) {
         console.error("Error fetching exam:", error);
@@ -118,7 +127,9 @@ function Home() {
                   <Typography variant="h5">Paper Instructions</Typography>
                   <Box>
                     <Typography
-                      dangerouslySetInnerHTML={{ __html: exam.examInstruction }}
+                      dangerouslySetInnerHTML={{
+                        __html: exam.exam.examInstruction,
+                      }}
                     />
                   </Box>
                 </div>
@@ -176,15 +187,16 @@ function Home() {
                 order={{ xs: 2, sm: 1 }}
                 style={{ height: "100%", position: "relative" }}
               >
-                {exam &&
-                  exam.questions &&
-                  currentQuestionIndex < exam.questions.length && (
+                {exam.exam &&
+                  exam.exam.questions &&
+                  currentQuestionIndex < exam.exam.questions.length && (
                     <>
                       <Typography>Question : </Typography>
                       <Typography
                         dangerouslySetInnerHTML={{
                           __html:
-                            exam.questions[currentQuestionIndex].questionText,
+                            exam.exam.questions[currentQuestionIndex]
+                              .questionText,
                         }}
                       />
                       <hr />
@@ -200,38 +212,46 @@ function Home() {
                         >
                           <FormControlLabel
                             value={
-                              exam.questions[currentQuestionIndex].option1.text
+                              exam.exam.questions[currentQuestionIndex].option1
+                                .text
                             }
                             control={<Radio />}
                             label={
-                              exam.questions[currentQuestionIndex].option1.text
+                              exam.exam.questions[currentQuestionIndex].option1
+                                .text
                             }
                           />
                           <FormControlLabel
                             value={
-                              exam.questions[currentQuestionIndex].option2.text
+                              exam.exam.questions[currentQuestionIndex].option2
+                                .text
                             }
                             control={<Radio />}
                             label={
-                              exam.questions[currentQuestionIndex].option2.text
+                              exam.exam.questions[currentQuestionIndex].option2
+                                .text
                             }
                           />
                           <FormControlLabel
                             value={
-                              exam.questions[currentQuestionIndex].option3.text
+                              exam.exam.questions[currentQuestionIndex].option3
+                                .text
                             }
                             control={<Radio />}
                             label={
-                              exam.questions[currentQuestionIndex].option3.text
+                              exam.exam.questions[currentQuestionIndex].option3
+                                .text
                             }
                           />
                           <FormControlLabel
                             value={
-                              exam.questions[currentQuestionIndex].option4.text
+                              exam.exam.questions[currentQuestionIndex].option4
+                                .text
                             }
                             control={<Radio />}
                             label={
-                              exam.questions[currentQuestionIndex].option4.text
+                              exam.exam.questions[currentQuestionIndex].option4
+                                .text
                             }
                           />
                         </RadioGroup>

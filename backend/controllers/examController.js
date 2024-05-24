@@ -2,6 +2,7 @@ const ExamTemplate = require("../models/examTemplate");
 const Question = require("../models/questions");
 const Batch = require("../models/batch");
 const mongoose = require("mongoose");
+const ExamAssigned = require("../models/examAssigned");
 
 module.exports.createTemplate = async (req, res, next) => {
   try {
@@ -21,9 +22,13 @@ module.exports.createTemplate = async (req, res, next) => {
 module.exports.getExam = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const exam = await ExamTemplate.findById(id)
-      .select("-examAssigned")
-      .populate("questions");
+    const exam = await ExamAssigned.findById(id).populate({
+      path: "exam",
+      populate: {
+        path: "questions",
+      },
+    });
+
     res.status(200).json(exam);
   } catch (error) {
     next(error);
@@ -34,13 +39,7 @@ module.exports.getExams = async (req, res, next) => {
   try {
     const { id } = req.params;
     const objectId = new mongoose.Types.ObjectId(id);
-    const exams = await ExamTemplate.find({
-      examAssigned: {
-        $elemMatch: {
-          batchId: objectId,
-        },
-      },
-    });
+    const exams = await ExamAssigned.find({ batchId: objectId });
     res.status(200).json(exams);
   } catch (error) {
     next(error);
@@ -61,16 +60,16 @@ module.exports.AssignExamToBatch = async (req, res, next) => {
     }
 
     // Check if the batchId already exists in the examAssigned array
-    const alreadyAssigned = examTemp.examAssigned.some((assignment) => {
-      return assignment.batchId.toString() == batchId;
-    });
+    const alreadyAssigned = await ExamAssigned.find({ batchId: batchId });
 
     if (!alreadyAssigned) {
-      examTemp.examAssigned.push(newAssignment);
-      await examTemp.save();
-      res.status(200).json({ msg: "Data Saved Successfully" });
+      const newExamAssigned = new ExamAssigned(newAssignment);
+      newExamAssigned.exam = examTemp;
+      newExamAssigned.examName = examTemp.examName;
+      // newExamAssigned.save();
+      res.status(200).json({ msg: "Saved Succesfully" });
     } else {
-      res.status(200).json({ msg: "Already Added" });
+      res.status(200).json({ msg: "Already Assigned " });
     }
   } catch (error) {
     next(error);

@@ -50,6 +50,7 @@ export default function ExamMasterOnline() {
     examDate: "",
     examStartTime: "",
     examEndTime: "",
+    examDuration: 180,
   });
   const [showExamTemplateModal, setShowExamTemplateModal] = useState(false);
   const [batch, setBatch] = useState([]);
@@ -59,6 +60,8 @@ export default function ExamMasterOnline() {
   const [showAssignedExam, setShowAssignedExam] = useState(false);
   const [showAssignToBatch, setShowAssignToBatch] = useState(false);
   const [showEditAssignedExam, setShowEditAssignedExam] = useState(false);
+
+  console.log(newAssignData);
 
   useEffect(() => {
     fetch(`${API_URL}/batch`)
@@ -121,48 +124,39 @@ export default function ExamMasterOnline() {
     }
   };
 
- const handleAssignExamToBatch = async () => {
-   const currTempId = currTemplate._id;
-   const url = `${API_URL}/exams/assigntobatch/${currTempId}`;
-   const options = {
-     method: "POST",
-     headers: {
-       "Content-Type": "application/json",
-     },
-     body: JSON.stringify(newAssignData),
-   };
+  const handleAssignExamToBatch = async () => {
+    const currTempId = currTemplate._id;
+    const url = `${API_URL}/exams/assigntobatch/${currTempId}`;
+    const options = {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(newAssignData),
+    };
 
-   try {
-     const response = await fetch(url, options);
-     if (response.ok) {
-       // equivalent to response.status === 200
-       const data = await response.json();
-       console.log(data.msg);
-       setShowAssignToBatch(false);
-     }
-   } catch (error) {
-     console.error("Error:", error);
-   }
- };
-
+    try {
+      const response = await fetch(url, options);
+      if (response.ok) {
+        // equivalent to response.status === 200
+        const data = await response.json();
+        console.log(data.msg);
+        setShowAssignToBatch(false);
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
 
   if (isLoading) {
     return (
       <>
         <Grid container spacing={2}>
           <Grid item xs={12} lg={9}>
-            <Skeleton
-              sx={{ borderRadius: 10 }}
-              variant="rectangular"
-              height={40}
-            />
+            <Skeleton variant="rectangular" height={40} />
           </Grid>
           <Grid item xs={12} lg={3}>
-            <Skeleton
-              sx={{ borderRadius: 10 }}
-              variant="rectangular"
-              height={40}
-            />
+            <Skeleton variant="rectangular" height={40} />
           </Grid>
         </Grid>
         <Box>
@@ -235,7 +229,6 @@ export default function ExamMasterOnline() {
         <Grid item sx={6} md={6} lg={9}>
           <FormControl fullWidth size="small">
             <OutlinedInput
-              sx={{ borderRadius: 10 }}
               onChange={(e) => setSearchInput(e.target.value)}
               startAdornment={
                 <InputAdornment position="start">
@@ -249,7 +242,6 @@ export default function ExamMasterOnline() {
           <Button
             fullWidth
             variant="contained"
-            sx={{ borderRadius: 10 }}
             onClick={() => setShowAddExamTemplate(true)}
           >
             Create New Template
@@ -352,7 +344,6 @@ export default function ExamMasterOnline() {
               onClick={() => setShowAddExamTemplate(false)}
               color="error"
               variant="contained"
-              sx={{ borderRadius: 10 }}
             >
               Close
             </Button>
@@ -385,7 +376,6 @@ export default function ExamMasterOnline() {
               onClick={() => setShowExamTemplateModal(false)}
               color="error"
               variant="contained"
-              sx={{ borderRadius: 10 }}
             >
               Close
             </Button>
@@ -420,7 +410,6 @@ export default function ExamMasterOnline() {
               onClick={() => setShowAssignedExam(false)}
               color="error"
               variant="contained"
-              sx={{ borderRadius: 10 }}
             >
               Close
             </Button>
@@ -555,6 +544,30 @@ export default function ExamMasterOnline() {
                 fullWidth
               />
             </Box>
+            <FormControl size="small">
+              <InputLabel>Exam Duration</InputLabel>
+              <OutlinedInput
+                onChange={handleChangeAssignData}
+                name="examDuration"
+                type="Number"
+                value={newAssignData.examDuration}
+                label="Exam Duration"
+                fullWidth
+                sx={{
+                  "& input[type=number]": {
+                    "-moz-appearance": "textfield", // Firefox
+                  },
+                  "& input[type=number]::-webkit-outer-spin-button": {
+                    "-webkit-appearance": "none", // Chrome, Safari, Edge
+                    margin: 0,
+                  },
+                  "& input[type=number]::-webkit-inner-spin-button": {
+                    "-webkit-appearance": "none", // Chrome, Safari, Edge
+                    margin: 0,
+                  },
+                }}
+              />
+            </FormControl>
             <Button onClick={handleAssignExamToBatch} variant="contained">
               Save
             </Button>

@@ -66,6 +66,8 @@ export default function OnlineExamStudent() {
     );
   };
 
+  console.log(exams);
+
   return (
     <Box>
       <Box
@@ -104,9 +106,6 @@ export default function OnlineExamStudent() {
             </TableHead>
             <TableBody>
               {exams?.map((exam, index) => {
-                const filteredExamAssigned = exam.examAssigned.find(
-                  (assignment) => assignment.batchId === batchId
-                );
                 return (
                   <StyledTableRow key={exam._id}>
                     <StyledTableCell align="center">
@@ -116,19 +115,13 @@ export default function OnlineExamStudent() {
                       {exam.examName}
                     </StyledTableCell>
                     <StyledTableCell align="center">
-                      {filteredExamAssigned
-                        ? filteredExamAssigned.examDate
-                        : "N/A"}
+                      {exam.examDate}
                     </StyledTableCell>
                     <StyledTableCell align="center">
-                      {filteredExamAssigned
-                        ? filteredExamAssigned.examStartTime
-                        : "N/A"}
+                      {exam.examStartTime}
                     </StyledTableCell>
                     <StyledTableCell align="center">
-                      {filteredExamAssigned
-                        ? filteredExamAssigned.examEndTime
-                        : "N/A"}
+                      {exam.examEndTime}
                     </StyledTableCell>
                     <StyledTableCell align="center"></StyledTableCell>
                     <StyledTableCell align="center">

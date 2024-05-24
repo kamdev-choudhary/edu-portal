@@ -1,30 +1,6 @@
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
-// Sub-schema for batch assignment with time slot
-const batchAssignmentSchema = new Schema({
-  batchName: {
-    type: String,
-  },
-  batchId: {
-    type: Schema.Types.ObjectId,
-    ref: "Batch",
-    required: true,
-  },
-  examDate: {
-    type: String,
-    required: true,
-  },
-  examStartTime: {
-    type: String,
-    require: true,
-  },
-  examEndTime: {
-    type: String,
-    required: true,
-  },
-});
-
 const examTemplateSchema = new Schema({
   examId: String,
   examName: String,
@@ -99,7 +75,6 @@ const examTemplateSchema = new Schema({
       ref: "Question",
     },
   ],
-  examAssigned: [batchAssignmentSchema], // Use the sub-schema here
 });
 
 // Function to format date, assumed to be already defined
