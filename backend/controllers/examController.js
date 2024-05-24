@@ -3,6 +3,7 @@ const Question = require("../models/questions");
 const Batch = require("../models/batch");
 const mongoose = require("mongoose");
 const ExamAssigned = require("../models/examAssigned");
+const ExamResponse = require("../models/examResponse");
 
 module.exports.createTemplate = async (req, res, next) => {
   try {
@@ -145,6 +146,31 @@ module.exports.addToBatch = async (req, res, next) => {
     batch.slots.push(newSlotData);
     batch.save();
     examTemplate.save();
+  } catch (error) {
+    next(error);
+  }
+};
+
+module.exports.getAllResponses = async (req, res, next) => {
+  try {
+    const { batchId, userId } = req.params;
+    const examResponses = await ExamResponse.find({ scholarId: userId });
+    res.status(200).json(examResponses);
+  } catch (error) {
+    next(error);
+  }
+};
+
+module.exports.updateRemaingTime = async (req, res, next) => {
+  try {
+    const { batchId, userId, remainingtime } = req.params;
+    const examRes = await ExamResponse.find({
+      batchId: batchId,
+      scholarId: userId,
+    });
+    examRes.remainingtime = remainingtime;
+    examRes.save();
+    res.status(200).json({ msg: `Data saved upto ${remainingtime}` });
   } catch (error) {
     next(error);
   }

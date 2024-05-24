@@ -1,9 +1,9 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
-const examResponsesSchema = new Schema({
-  examID: String,
-  scholrId: String,
+const examResponseSchema = new Schema({
+  examId: String,
+  scholarId: String,
   examTemplate: {
     type: Schema.Types.ObjectId,
     ref: "ExamTemplate",
@@ -22,6 +22,6 @@ const examResponsesSchema = new Schema({
   ],
 });
 
-const ExamResponse = mongoose.model("ExamResponse", examResponsesSchema);
+const ExamResponse = mongoose.model("ExamResponse", examResponseSchema);
 
 module.exports = ExamResponse;

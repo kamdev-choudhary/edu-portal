@@ -7,8 +7,14 @@ router.route("/createtemplate").put(examController.createTemplate);
 router.route("/").get(examController.viewExams);
 router.route("/templates/:id").get(examController.viewExamTemplate);
 router.route("/assigntobatch/:id").post(examController.AssignExamToBatch);
-router.route("/start/:id").get(examController.getExam);
 router.route("/:id").get(examController.getExams);
+router.route("/start/:id").get(examController.getExam);
+router
+  .route("/responses/all/:batchId/:userId")
+  .get(examController.getAllResponses);
+router
+  .route("/start/updatetime/:batchId/:userId/:remainingtime")
+  .get(examController.updateRemaingTime);
 
 router.route("/addtobatch").post(examController.addToBatch);
 module.exports = router;

@@ -7,57 +7,49 @@ export const AuthContext = createContext();
 const SECRET_KEY = import.meta.env.VITE_REACT_APP_SECRET_KEY;
 
 export const AuthProvider = ({ children }) => {
-  const [token, setToken] = useState(null);
-  let isAdmin = false;
-  let userId = "";
-  let batchId = "";
-  let username = "";
-  let role = "";
-
-  useEffect(() => {
-    const encryptedToken = localStorage.getItem(
-      "U2FsdGVkX188nvX2R3IWq6waxgAir8t97XO7cGnUvY8"
-    );
+  const [token, setToken] = useState(() => {
+    const encryptedToken = localStorage.getItem("authToken");
     if (encryptedToken) {
       try {
-        const decryptedBytes = CryptoJS.AES.decrypt(encryptedToken, SECRET_KEY);
-        const decryptedToken = decryptedBytes.toString(CryptoJS.enc.Utf8);
-        setToken(decryptedToken);
+        const decryptedToken = CryptoJS.AES.decrypt(
+          encryptedToken,
+          SECRET_KEY
+        ).toString(CryptoJS.enc.Utf8);
+        return decryptedToken;
       } catch (error) {
-        console.error("Failed to decrypt token:", error);
-        setToken(null);
+        console.error("Token decryption failed:", error);
+        return "";
       }
     }
-  }, []);
+    return "";
+  });
 
   const storeTokenInLS = (serverToken) => {
-    const cipherToken = CryptoJS.AES.encrypt(serverToken, SECRET_KEY);
-    localStorage.setItem(
-      "U2FsdGVkX188nvX2R3IWq6waxgAir8t97XO7cGnUvY8",
-      cipherToken
-    );
-    setToken(serverToken);
+    try {
+      const cipherToken = CryptoJS.AES.encrypt(
+        serverToken,
+        SECRET_KEY
+      ).toString();
+      localStorage.setItem("authToken", cipherToken);
+      setToken(serverToken);
+    } catch (error) {
+      console.error("Token encryption failed:", error);
+    }
   };
-
-  const isLoggedIn = !!token;
-  if (token) {
-    const decoded = jwtDecode(token);
-    isAdmin = decoded.isAdmin;
-    userId = decoded.userId;
-    username = decoded.name;
-    role = decoded.role;
-    batchId = decoded.batchId;
-  }
 
   const logoutUser = () => {
-    localStorage.removeItem("U2FsdGVkX188nvX2R3IWq6waxgAir8t97XO7cGnUvY8");
+    localStorage.removeItem("authToken");
     setToken("");
-    isAdmin = false;
-    role = "";
-    batchId = "";
-    username = "";
-    userId = "";
   };
+
+  const decodedToken = token ? jwtDecode(token) : {};
+  const isAdmin = decodedToken.isAdmin || false;
+  const userId = decodedToken.userId || "";
+  const username = decodedToken.name || "";
+  const role = decodedToken.role || "";
+  const batchId = decodedToken.batchId || "";
+
+  const isLoggedIn = !!token;
 
   return (
     <AuthContext.Provider

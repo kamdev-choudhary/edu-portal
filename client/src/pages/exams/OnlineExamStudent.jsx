@@ -41,6 +41,7 @@ export default function OnlineExamStudent() {
   const { username, userId, batchId } = useAuth();
   const [exams, setExams] = useState([]);
   const [currentTime, setCurrentTime] = useState("");
+  const [examResponses, setExamResponses] = useState([]);
 
   useEffect(() => {
     const getExamData = async () => {
@@ -52,6 +53,16 @@ export default function OnlineExamStudent() {
     if (batchId !== "") {
       getExamData();
     }
+    // Get Responses
+    const getResponses = async () => {
+      const response = await axios.get(
+        `${API_URL}/exams/responses/all/${batchId}/${userId}`
+      );
+      if (response.status === 200) {
+        setExamResponses(response.data);
+      }
+    };
+    getResponses();
   }, []);
 
   const handleStartExam = (examId) => {
@@ -90,6 +101,9 @@ export default function OnlineExamStudent() {
             </TableHead>
             <TableBody>
               {exams?.map((exam, index) => {
+                const hasResponse = examResponses.filter(
+                  (response) => response.examId === exam._id
+                );
                 return (
                   <StyledTableRow key={exam._id}>
                     <StyledTableCell align="center">
@@ -107,7 +121,11 @@ export default function OnlineExamStudent() {
                     <StyledTableCell align="center">
                       {exam.examEndTime}
                     </StyledTableCell>
-                    <StyledTableCell align="center"></StyledTableCell>
+                    <StyledTableCell align="center">
+                      {hasResponse.examId === exam._id
+                        ? hasResponse.examStatus
+                        : "Not Started"}
+                    </StyledTableCell>
                     <StyledTableCell align="center">
                       <Button
                         onClick={() => handleStartExam(exam._id)}
