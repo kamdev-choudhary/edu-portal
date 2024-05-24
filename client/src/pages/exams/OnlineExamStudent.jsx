@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useAuth } from "../../Auth";
-import CurrentTime from "../../components/CurrentTime";
 
 // MUI Component
 import { styled } from "@mui/material/styles";
@@ -66,23 +65,8 @@ export default function OnlineExamStudent() {
     );
   };
 
-  console.log(exams);
-
   return (
     <Box>
-      <Box
-        sx={{
-          border: "1px solid rgba(0,0,0,0.2)",
-          padding: "0 20px",
-          borderRadius: 1,
-          marginBottom: 1,
-          display: "flex",
-          justifyContent: "center",
-          fontWeight: "bold",
-        }}
-      >
-        <CurrentTime />
-      </Box>
       {batchId === "" ? (
         <Box sx={{ display: "flex", justifyContent: "center" }}>
           <Typography>Join a batch to Get Exams</Typography>

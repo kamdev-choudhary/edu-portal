@@ -3,6 +3,7 @@ import { useLocation } from "react-router-dom";
 import { CircularProgress } from "@mui/material";
 import axios from "axios";
 import { useAuth } from "../../Auth";
+import CurrentTime from "../../components/CurrentTime";
 
 import {
   Accordion,
@@ -295,7 +296,9 @@ function Home() {
                     sx={{ borderRadius: 100 }}
                     onClick={handlePreviousQuestion}
                     disabled={
-                      !exam || !exam.questions || currentQuestionIndex === 0
+                      !exam.exam ||
+                      !exam.exam.questions ||
+                      currentQuestionIndex === 0
                     }
                   >
                     Previous
@@ -306,9 +309,9 @@ function Home() {
                     sx={{ borderRadius: 100 }}
                     onClick={handleNextQuestion}
                     disabled={
-                      !exam ||
-                      !exam.questions ||
-                      currentQuestionIndex === exam.questions.length - 1
+                      !exam.exam ||
+                      !exam.exam.questions ||
+                      currentQuestionIndex === exam.exam.questions.length - 1
                     }
                   >
                     Next
@@ -324,14 +327,28 @@ function Home() {
                 style={{ width: "100%" }}
               >
                 {isLargeScreen && (
-                  <Box
-                    sx={{
-                      borderRadius: 2,
-                      border: "1px solid rgba(0,0,0,0.2)",
-                      padding: 2,
-                    }}
-                  >
-                    Remaining Time :{" "}
+                  <Box sx={{ display: "grid", gap: 1 }}>
+                    <Box
+                      sx={{
+                        borderRadius: 2,
+                        border: "1px solid rgba(0,0,0,0.2)",
+                        padding: 2,
+                        display: "flex",
+                      }}
+                    >
+                      Current Time : &nbsp; <CurrentTime />
+                    </Box>
+                    <Box
+                      sx={{
+                        borderRadius: 2,
+                        border: "1px solid rgba(0,0,0,0.2)",
+                        padding: 2,
+                        backgroundColor: "#28844f",
+                        color: "#fff",
+                      }}
+                    >
+                      Remaining Time :{" "}
+                    </Box>
                   </Box>
                 )}
                 <Accordion defaultExpanded={isLargeScreen} elevation={4}>

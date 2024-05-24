@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { Box } from "@mui/material";
 
 const CurrentTime = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -19,11 +20,7 @@ const CurrentTime = () => {
     return `${hours}:${minutes}:${seconds}`;
   };
 
-  return (
-    <div>
-      <p>{formatTime(currentTime)}</p>
-    </div>
-  );
+  return <Box>{formatTime(currentTime)}</Box>;
 };
 
 export default CurrentTime;
