@@ -13,7 +13,7 @@ router
   .route("/responses/all/:batchId/:userId")
   .get(examController.getAllResponses);
 router
-  .route("/start/updatetime/:batchId/:userId/:remainingtime")
+  .route("/start/updatetime/:examId/:userId/:remainingtime")
   .get(examController.updateRemaingTime);
 
 router.route("/addtobatch").post(examController.addToBatch);

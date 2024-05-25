@@ -4,10 +4,10 @@ import axios from "axios";
 import { useAuth } from "../../Auth";
 import CurrentTime from "../../components/CurrentTime";
 import ConfirmationDialog from "../../components/ConfirmationDialog";
+import StartExamButtonGroup from "../../components/StartExamButtonGroup";
 
 // Import MUI Components
 import {
-  Stack,
   Avatar,
   Radio,
   RadioGroup,
@@ -49,9 +49,9 @@ function Home() {
   const theme = useTheme();
   const isLargeScreen = useMediaQuery(theme.breakpoints.up("md"));
 
+  const segments = location.pathname.split("/").filter((segment) => segment);
   // Getting Exam from Server
   useEffect(() => {
-    const segments = location.pathname.split("/").filter((segment) => segment);
     setPathSegments(segments);
     const examId = segments[3];
 
@@ -113,9 +113,13 @@ function Home() {
         remainingTimeInLs -= 1;
         localStorage.setItem("remainingTime", remainingTimeInLs);
         setRemainingTime(remainingTimeInLs);
-        fetch(
-          `${API_URL}/exams/start/updatetime/${batchId}/${userId}/${remainingTimeInLs}`
-        );
+        try {
+          await axios.get(
+            `${API_URL}/exams/start/updatetime/${segments[3]}/${segments[2]}/${remainingTimeInLs}`
+          );
+        } catch (error) {
+          console.log(error);
+        }
       } else {
         clearInterval(intervalId);
         console.log("Countdown finished.");
@@ -152,13 +156,11 @@ function Home() {
     const formattedHours = String(hours).padStart(2, "0");
     const formattedMinutes = String(minutes).padStart(2, "0");
     const formattedSeconds = String(remainingSeconds).padStart(2, "0");
-
     return `${formattedHours}:${formattedMinutes}:${formattedSeconds}`;
   }
 
   const calculateColor = (remainingTime) => {
     const percentage = (remainingTime / (exam.examDuration * 60)) * 100;
-    console.log(percentage);
     const hue = (percentage / 100) * 120;
     return `hsl(${hue}, 100%, 50%)`;
   };
@@ -352,7 +354,7 @@ function Home() {
                         </>
                       )}
                   </Box>
-
+                  {/* Buttons */}
                   <Box
                     sx={{
                       display: "flex",
@@ -382,7 +384,7 @@ function Home() {
                         minWidth: 160,
                       }}
                     >
-                      Mark for review
+                      Mark for review and Next
                     </Button>
                     <Button
                       variant="contained"
@@ -435,29 +437,39 @@ function Home() {
                   >
                     Remaining Time: {formatTime(remainingTime)}
                   </Box>
-                  <Grid container spacing={1} sx={{ padding: 2 }}>
-                    {questions &&
-                      questions.map((question, index) => (
-                        <Grid item key={index}>
-                          <Avatar
-                            alt="Remy Sharp"
-                            src="/broken-image.jpg"
-                            sx={{
-                              bgcolor:
-                                currentQuestionIndex === index
-                                  ? "#28844f"
-                                  : undefined,
-                              height: 35,
-                              width: 35,
-                              cursor: "pointer",
-                            }}
-                            onClick={() => setCurrentQuestionIndex(index)}
-                          >
-                            {index + 1}
-                          </Avatar>
-                        </Grid>
-                      ))}
-                  </Grid>
+                  <Box
+                    sx={{
+                      borderRadius: 2,
+                      border: "1px solid rgba(0,0,0,0.2)",
+                      padding: 2,
+                    }}
+                  >
+                    <Typography>Question Details</Typography>
+                    <hr />
+                    <Grid container spacing={1} sx={{}}>
+                      {questions &&
+                        questions.map((question, index) => (
+                          <Grid item key={index}>
+                            <Avatar
+                              alt="Remy Sharp"
+                              src="/broken-image.jpg"
+                              sx={{
+                                bgcolor:
+                                  currentQuestionIndex === index
+                                    ? "#28844f"
+                                    : undefined,
+                                height: 35,
+                                width: 35,
+                                cursor: "pointer",
+                              }}
+                              onClick={() => setCurrentQuestionIndex(index)}
+                            >
+                              {index + 1}
+                            </Avatar>
+                          </Grid>
+                        ))}
+                    </Grid>
+                  </Box>
                 </Box>
               )}
             </Box>

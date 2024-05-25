@@ -163,14 +163,18 @@ module.exports.getAllResponses = async (req, res, next) => {
 
 module.exports.updateRemaingTime = async (req, res, next) => {
   try {
-    const { batchId, userId, remainingtime } = req.params;
-    const examRes = await ExamResponse.find({
-      batchId: batchId,
+    const { examId, userId, remainingtime } = req.params;
+    const examRes = await ExamResponse.findOne({
+      examId: examId,
       scholarId: userId,
     });
-    examRes.remainingtime = remainingtime;
-    examRes.save();
-    res.status(200).json({ msg: `Data saved upto ${remainingtime}` });
+    if (examRes) {
+      examRes.remainingtime = remainingtime;
+      awaitexamRes.save();
+      res.status(200).json({ msg: `Data saved upto ${remainingtime}` });
+    } else {
+      res.status(200).json({ msg: "Error updating Exam" });
+    }
   } catch (error) {
     next(error);
   }
