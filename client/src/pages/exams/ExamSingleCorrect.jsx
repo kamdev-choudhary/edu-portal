@@ -1,15 +1,68 @@
 import React, { useState, useEffect } from "react";
-import { Box, Typography, Radio } from "@mui/material";
+import {
+  Box,
+  Typography,
+  Radio,
+  RadioGroup,
+  FormControlLabel,
+} from "@mui/material";
 
 const ExamSingleCorrect = (props) => {
-  const [question, setQuestions] = useState([]);
+  const [questions, setQuestions] = useState([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(null);
-  useEffect(() => {
-    setQuestions(props.questions);
-    setCurrentQuestionIndex(props.currentQuestionIndex);
-  }, [props.currentQuestionIndex]);
+  const [questionResponse, setQuestionResponse] = useState({
+    questionId: "",
+    questionStatus: "visited",
+    answer: [],
+  });
 
-  // console.log(JSON.parse(localStorage.getItem("response")));
+  useEffect(() => {
+    if (props.questions.length > 0) {
+      setQuestions(props.questions);
+      const index = props.currentQuestionIndex;
+      if (index !== null) {
+        setCurrentQuestionIndex(index);
+        const storedResponses = JSON.parse(
+          localStorage.getItem("response")
+        ) || { response: [] };
+        const existingResponse = storedResponses.response.find(
+          (resp) => resp.questionId === props.questions[index]._id
+        );
+        setQuestionResponse(
+          existingResponse || {
+            questionId: props.questions[index]._id,
+            questionStatus: "visited",
+            answer: [],
+          }
+        );
+      }
+    }
+  }, [props.questions, props.currentQuestionIndex]);
+
+  const handleChange = (event) => {
+    const selectedAnswer = event.target.value;
+    const updatedResponse = {
+      ...questionResponse,
+      answer: [selectedAnswer],
+    };
+    setQuestionResponse(updatedResponse);
+
+    let currentResponse = JSON.parse(localStorage.getItem("response")) || {
+      response: [],
+    };
+    const existingResponseIndex = currentResponse.response.findIndex(
+      (field) => field.questionId === updatedResponse.questionId
+    );
+
+    if (existingResponseIndex !== -1) {
+      currentResponse.response[existingResponseIndex] = updatedResponse;
+    } else {
+      currentResponse.response.push(updatedResponse);
+    }
+    localStorage.setItem("response", JSON.stringify(currentResponse));
+  };
+
+  const currentQuestion = questions[currentQuestionIndex] || {};
 
   return (
     <>
@@ -18,65 +71,31 @@ const ExamSingleCorrect = (props) => {
       <Box sx={{ padding: 1 }}>
         <Typography
           dangerouslySetInnerHTML={{
-            __html: question[currentQuestionIndex]?.questionText,
+            __html: currentQuestion.questionText,
           }}
         />
       </Box>
       <hr />
-      <Box>
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "row",
-            alignItems: "center",
-          }}
-        >
-          <Box>
-            <Radio />
-          </Box>
-          <Typography
-            dangerouslySetInnerHTML={{
-              __html: question[currentQuestionIndex]?.option1.text,
-            }}
+      <RadioGroup
+        name={`question-${currentQuestionIndex}`}
+        value={questionResponse.answer[0] || ""}
+        onChange={handleChange}
+      >
+        {["1", "2", "3", "4"].map((option, index) => (
+          <FormControlLabel
+            key={index}
+            value={option}
+            control={<Radio />}
+            label={
+              <Typography
+                dangerouslySetInnerHTML={{
+                  __html: currentQuestion[`option${option}`]?.text,
+                }}
+              />
+            }
           />
-        </Box>
-        <Box
-          sx={{ display: "flex", flexDirection: "row", alignItems: "center" }}
-        >
-          <Box>
-            <Radio />
-          </Box>
-          <Typography
-            dangerouslySetInnerHTML={{
-              __html: question[currentQuestionIndex]?.option2.text, // Make sure to change to option2
-            }}
-          />
-        </Box>
-        <Box
-          sx={{ display: "flex", flexDirection: "row", alignItems: "center" }}
-        >
-          <Box>
-            <Radio />
-          </Box>
-          <Typography
-            dangerouslySetInnerHTML={{
-              __html: question[currentQuestionIndex]?.option3.text, // Make sure to change to option2
-            }}
-          />
-        </Box>
-        <Box
-          sx={{ display: "flex", flexDirection: "row", alignItems: "center" }}
-        >
-          <Box>
-            <Radio />
-          </Box>
-          <Typography
-            dangerouslySetInnerHTML={{
-              __html: question[currentQuestionIndex]?.option4.text, // Make sure to change to option2
-            }}
-          />
-        </Box>
-      </Box>
+        ))}
+      </RadioGroup>
     </>
   );
 };

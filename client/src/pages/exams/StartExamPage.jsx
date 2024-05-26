@@ -489,7 +489,6 @@ function Home() {
                 <Box
                   sx={{
                     p: 2,
-                    // marginBottom: 2,
                   }}
                 >
                   <Grid container spacing={2}>
