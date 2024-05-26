@@ -103,11 +103,18 @@ function Navbar() {
                 display: { xs: "block", md: "none" },
               }}
             >
-              {pages.map((page, index) => (
-                <MenuItem key={index} onClick={handleCloseNavMenu}>
-                  <NavLink textAlign="center">{page.name}</NavLink>
-                </MenuItem>
-              ))}
+              {pages
+                .filter((page) => page.available.includes(role))
+                .map((page, index) => (
+                  <MenuItem
+                    key={index}
+                    onClick={() => {
+                      navigate(page.path);
+                    }}
+                  >
+                    <Typography textAlign="center">{page.name}</Typography>
+                  </MenuItem>
+                ))}
             </Menu>
           </Box>
           <AdbIcon sx={{ display: { xs: "flex", md: "none" }, mr: 1 }} />

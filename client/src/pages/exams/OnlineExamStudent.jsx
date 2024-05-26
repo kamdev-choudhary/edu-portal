@@ -65,16 +65,18 @@ export default function OnlineExamStudent() {
     getResponses();
   }, []);
 
-  const handleStartExam = (examId) => {
-    const screenWidth = window.screen.width;
-    const screenHeight = window.screen.height;
+ const handleStartExam = (examId) => {
+   const screenWidth = window.screen.width;
+   const screenHeight = window.screen.height;
+   const currentOrigin = window.location.origin;
 
-    window.open(
-      `http://localhost:5173/exams/start/${userId}/${examId}`,
-      "Exams",
-      `width=${screenWidth},height=${screenHeight},resizable=yes,scrollbars=yes`
-    );
-  };
+   window.open(
+     `${currentOrigin}/exams/start/${userId}/${examId}`,
+     "Exams",
+     `width=${screenWidth},height=${screenHeight},resizable=yes,scrollbars=yes`
+   );
+ };
+
 
   return (
     <Box>
