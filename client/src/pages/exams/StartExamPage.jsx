@@ -658,7 +658,7 @@ function Home() {
                             <Avatar
                               sx={{
                                 bgcolor:
-                                  hasResponse.length > 0 &&
+                                  hasResponse?.length > 0 &&
                                   hasResponse[0]?.answer.length > 0
                                     ? "#28844f"
                                     : "#e0e0e0",
