@@ -16,5 +16,11 @@ router
   .route("/start/updatetime/:examId/:userId/:remainingtime")
   .get(examController.updateRemaingTime);
 
+router
+  .route("/start/response/:userId/:examId")
+  .get(examController.getExamResponse);
+
+router.route("/start/createresponse").post(examController.createResponse);
+
 router.route("/addtobatch").post(examController.addToBatch);
 module.exports = router;

@@ -122,8 +122,8 @@ export default function OnlineExamStudent() {
                       {exam.examEndTime}
                     </StyledTableCell>
                     <StyledTableCell align="center">
-                      {hasResponse.examId === exam._id
-                        ? hasResponse.examStatus
+                      {hasResponse[0]?.examId === exam._id
+                        ? hasResponse[0]?.examStatus
                         : "Not Started"}
                     </StyledTableCell>
                     <StyledTableCell align="center">
@@ -132,7 +132,9 @@ export default function OnlineExamStudent() {
                         variant="contained"
                         sx={{ borderRadius: 10 }}
                       >
-                        Start
+                        {hasResponse[0]?.examId === exam._id
+                          ? "Resume"
+                          : "Start"}
                       </Button>
                     </StyledTableCell>
                     <StyledTableCell align="center">
@@ -140,6 +142,7 @@ export default function OnlineExamStudent() {
                         variant="contained"
                         color="secondary"
                         sx={{ borderRadius: 10 }}
+                        disabled={hasResponse[0]?.examStatus !== "Submitted"}
                       >
                         View
                       </Button>

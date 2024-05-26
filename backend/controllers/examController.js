@@ -170,11 +170,39 @@ module.exports.updateRemaingTime = async (req, res, next) => {
     });
     if (examRes) {
       examRes.remainingtime = remainingtime;
-      awaitexamRes.save();
+      await examRes.save();
       res.status(200).json({ msg: `Data saved upto ${remainingtime}` });
     } else {
       res.status(200).json({ msg: "Error updating Exam" });
     }
+  } catch (error) {
+    next(error);
+  }
+};
+
+module.exports.getExamResponse = async (req, res, next) => {
+  try {
+    const { userId, examId } = req.params;
+    const myResponse = await ExamResponse.findOne({
+      examId: examId,
+      scholarId: userId,
+    });
+    if (!myResponse) {
+      res.status(200).json({ msg: "Response not found" });
+    } else {
+      res.status(200).json(myResponse);
+    }
+  } catch (error) {
+    next(error);
+  }
+};
+
+module.exports.createResponse = async (req, res, next) => {
+  try {
+    const responseData = req.body;
+    const newResponse = new ExamResponse(responseData);
+    newResponse.save();
+    res.status(200).json({ msg: "Successfully created Response" });
   } catch (error) {
     next(error);
   }

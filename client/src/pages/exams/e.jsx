@@ -3,13 +3,15 @@ import { useLocation } from "react-router-dom";
 import axios from "axios";
 import { useAuth } from "../../Auth";
 import ConfirmationDialog from "../../components/ConfirmationDialog";
-import ExamSingleCorrect from "./ExamSingleCorrect";
-import ExamMultiCorrect from "./ExamMultiCorrect";
-import CircleIcon from "@mui/icons-material/Circle";
 
 // Import MUI Components
 import {
   Avatar,
+  Radio,
+  RadioGroup,
+  FormControlLabel,
+  FormControl,
+  FormLabel,
   IconButton,
   Button,
   Checkbox,
@@ -19,6 +21,7 @@ import {
   useMediaQuery,
   CircularProgress,
   Modal,
+  Container,
 } from "@mui/material";
 import { useTheme, styled } from "@mui/material/styles";
 import InfoIcon from "@mui/icons-material/Info";
@@ -28,7 +31,7 @@ const API_URL = import.meta.env.VITE_REACT_APP_API_URL;
 
 function Home() {
   const location = useLocation();
-  const { batchId, userId, username } = useAuth();
+  const { batchId, userId } = useAuth();
   const [loading, setLoading] = useState(true);
   const [exam, setExam] = useState([]);
   const [showInstruction, setShowInstructions] = useState(true);
@@ -99,7 +102,7 @@ function Home() {
 
     getExam();
     getResponse();
-  }, [userId]);
+  }, []);
 
   // Getting the Questions from Local Storage
   useEffect(() => {
@@ -118,69 +121,7 @@ function Home() {
         console.error("Error parsing questions from localStorage:", error);
       }
     }
-  }, [userId]);
-
-  useEffect(() => {
-    if (!showInstruction) {
-      // Enter full screen mode
-      const elem = document.documentElement;
-      if (elem.requestFullscreen) {
-        elem.requestFullscreen();
-      } else if (elem.mozRequestFullScreen) {
-        // Firefox
-        elem.mozRequestFullScreen();
-      } else if (elem.webkitRequestFullscreen) {
-        // Chrome, Safari, and Opera
-        elem.webkitRequestFullscreen();
-      } else if (elem.msRequestFullscreen) {
-        // IE/Edge
-        elem.msRequestFullscreen();
-      }
-
-      // Add event listener for visibility change
-      document.addEventListener("visibilitychange", handleVisibilityChange);
-
-      // Add event listener for before unload
-      window.addEventListener("beforeunload", handleBeforeUnload);
-
-      // Add event listener for back button
-      window.addEventListener("popstate", handleBackButton);
-
-      // Cleanup event listeners on component unmount
-      return () => {
-        document.removeEventListener(
-          "visibilitychange",
-          handleVisibilityChange
-        );
-        window.removeEventListener("beforeunload", handleBeforeUnload);
-        window.removeEventListener("popstate", handleBackButton);
-      };
-    }
-  }, [!showInstruction]);
-
-  const handleVisibilityChange = () => {
-    // if (document.hidden) {
-    //   alert(
-    //     "You have attempted to switch tabs or minimize the window. Your exam will be terminated."
-    //   );
-    //   // Implement any additional logic such as logging the attempt or ending the exam
-    // }
-  };
-
-  const handleBeforeUnload = (e) => {
-    const confirmationMessage =
-      "Are you sure you want to leave? Your exam will be terminated.";
-    e.returnValue = confirmationMessage; // Gecko, Trident, Chrome 34+
-    return confirmationMessage; // Gecko, WebKit, Chrome <34
-  };
-
-  const handleBackButton = (e) => {
-    // Prevent the default action (navigation) and show an alert
-    e.preventDefault();
-    alert("You cannot go back during the exam. Your exam will be terminated.");
-    // Optionally, you can also log the attempt or end the exam here
-    window.history.pushState(null, null, window.location.pathname); // push the state again to prevent back navigation
-  };
+  }, []);
 
   // Submit Exam
   const submitExam = () => {
@@ -294,6 +235,7 @@ function Home() {
     );
   }
 
+  console.log(JSON.parse(localStorage.getItem("response")));
   return (
     <>
       <Box sx={{ height: "100%", width: "100vw" }}>
@@ -325,9 +267,6 @@ function Home() {
               }}
             >
               <Typography>Instructions</Typography>
-            </Box>
-            <Box sx={{ display: "flex", justifyContent: "center", padding: 1 }}>
-              <Typography>Read the Instructions carefully.</Typography>
             </Box>
             <Box sx={{ flex: "1 1 auto", overflow: "auto", p: "1rem 2rem" }}>
               <Typography variant="h5">Paper Instructions</Typography>
@@ -433,8 +372,7 @@ function Home() {
                       justifyContent: "space-between",
                     }}
                   >
-                    <h4>Time Left : {formatTime(remainingTime)}</h4>{" "}
-                    <CircleIcon />
+                    <h4>Time Left : {formatTime(remainingTime)}</h4>
                     <Box sx={{ display: "flex", gap: 1 }}>
                       <IconButton onClick={() => setShowSectionBox(true)}>
                         <DehazeIcon />
@@ -445,7 +383,6 @@ function Home() {
                     </Box>
                   </Box>
                 )}
-                {/* Questions */}
                 <Box
                   sx={{ flex: "1 1 auto", overflow: "auto", p: "1rem 2rem" }}
                 >
@@ -453,20 +390,66 @@ function Home() {
                     questions &&
                     currentQuestionIndex < questions.length && (
                       <>
-                        {questions[currentQuestionIndex]?.questionType ===
-                          "singleCorrect" && (
-                          <ExamSingleCorrect
-                            questions={questions}
-                            currentQuestionIndex={currentQuestionIndex}
-                          />
-                        )}
-                        {questions[currentQuestionIndex]?.questionType ===
-                          "multiCorrect" && (
-                          <ExamMultiCorrect
-                            questions={questions}
-                            currentQuestionIndex={currentQuestionIndex}
-                          />
-                        )}
+                        <Typography>Question : </Typography>
+                        <Typography
+                          dangerouslySetInnerHTML={{
+                            __html:
+                              questions[currentQuestionIndex].questionText,
+                          }}
+                        />
+                        <hr />
+                        <FormControl>
+                          <FormLabel id="demo-controlled-radio-buttons-group">
+                            Options
+                          </FormLabel>
+                          <RadioGroup
+                            aria-labelledby="demo-controlled-radio-buttons-group"
+                            name="controlled-radio-buttons-group"
+                            value={value}
+                            onChange={handleChange}
+                          >
+                            <FormControlLabel
+                              value={
+                                questions[currentQuestionIndex].option1
+                                  .isCorrect
+                              }
+                              control={<Radio />}
+                              label={
+                                questions[currentQuestionIndex].option1.text
+                              }
+                            />
+                            <FormControlLabel
+                              value={
+                                questions[currentQuestionIndex].option2
+                                  .isCorrect
+                              }
+                              control={<Radio />}
+                              label={
+                                questions[currentQuestionIndex].option2.text
+                              }
+                            />
+                            <FormControlLabel
+                              value={
+                                questions[currentQuestionIndex].option3
+                                  .isCorrect
+                              }
+                              control={<Radio />}
+                              label={
+                                questions[currentQuestionIndex].option3.text
+                              }
+                            />
+                            <FormControlLabel
+                              value={
+                                questions[currentQuestionIndex].option4
+                                  .isCorrect
+                              }
+                              control={<Radio />}
+                              label={
+                                questions[currentQuestionIndex].option4.text
+                              }
+                            />
+                          </RadioGroup>
+                        </FormControl>
                       </>
                     )}
                 </Box>
@@ -474,72 +457,64 @@ function Home() {
                 {/* Buttons */}
                 <Box
                   sx={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    flexWrap: "wrap",
                     p: 2,
                     marginBottom: 2,
                   }}
                 >
-                  <Grid container spacing={2}>
-                    <Grid item xs={6} sm={6} md={3}>
-                      <Button
-                        variant="contained"
-                        sx={{
-                          backgroundColor: "#000",
-                          color: "white",
-                          textTransform: "none",
-                          minWidth: 160,
-                        }}
-                      >
-                        Clear
-                      </Button>
-                    </Grid>
-                    <Grid item xs={6} sm={6} md={3}>
-                      <Button
-                        variant="contained"
-                        sx={{
-                          backgroundColor: "#800080",
-                          color: "white",
-                          textTransform: "none",
-                          minWidth: 160,
-                        }}
-                      >
-                        Mark for Review
-                      </Button>
-                    </Grid>
-                    <Grid item xs={6} sm={6} md={3}>
-                      <Button
-                        variant="contained"
-                        onClick={handlePreviousQuestion}
-                        sx={{ textTransform: "none", minWidth: 160 }}
-                        disabled={
-                          !exam.exam || !questions || currentQuestionIndex === 0
-                        }
-                      >
-                        Previous
-                      </Button>
-                    </Grid>
-                    <Grid item xs={6} sm={6} md={3}>
-                      <Button
-                        variant="contained"
-                        color="success"
-                        onClick={handleNextQuestion}
-                        sx={{
-                          textTransform: "none",
-                          minWidth: 160,
-                        }}
-                        disabled={
-                          !exam.exam ||
-                          !questions ||
-                          currentQuestionIndex === questions.length - 1
-                        }
-                      >
-                        Save & Next
-                      </Button>
-                    </Grid>
-                  </Grid>
+                  <Button
+                    variant="contained"
+                    sx={{
+                      backgroundColor: "#000",
+                      color: "white",
+                      textTransform: "none",
+                      minWidth: 160,
+                    }}
+                  >
+                    Clear
+                  </Button>
+                  <Button
+                    variant="contained"
+                    sx={{
+                      backgroundColor: "#800080",
+                      color: "white",
+                      textTransform: "none",
+                      minWidth: 160,
+                    }}
+                  >
+                    Mark for review and Next
+                  </Button>
+                  <Button
+                    variant="contained"
+                    onClick={handlePreviousQuestion}
+                    sx={{ textTransform: "none", minWidth: 160 }}
+                    disabled={
+                      !exam.exam || !questions || currentQuestionIndex === 0
+                    }
+                  >
+                    Previous
+                  </Button>
+                  <Button
+                    variant="contained"
+                    color="success"
+                    onClick={handleNextQuestion}
+                    sx={{
+                      textTransform: "none",
+                      minWidth: 160,
+                    }}
+                    disabled={
+                      !exam.exam ||
+                      !questions ||
+                      currentQuestionIndex === questions.length - 1
+                    }
+                  >
+                    Save & Next
+                  </Button>
                 </Box>
               </Box>
             </Box>
-            {/* Sidepanel */}
             {isLargeScreen && (
               <Box
                 sx={{
@@ -547,27 +522,13 @@ function Home() {
                   padding: 1,
                   display: "flex",
                   flexDirection: "column",
-                  gap: 1,
+                  gap: 2,
                   border: "1px solid rgba(0,0,0,0.2)",
                   borderRadius: 2,
                   margin: 1,
                   position: "relative",
                 }}
               >
-                <Box
-                  sx={{
-                    p: 1,
-                    border: "1px solid rgba(0,0,0,0.2)",
-                    borderRadius: 1,
-                    display: "flex",
-                    justifyContent: "center",
-                    flexDirection: "column",
-                  }}
-                >
-                  <Typography>
-                    <strong>Name:</strong> {username}
-                  </Typography>
-                </Box>
                 <Box
                   sx={{
                     borderRadius: 2,
@@ -589,14 +550,7 @@ function Home() {
                     Time Left: {formatTime(remainingTime)}
                   </Typography>
                 </Box>
-                <Button
-                  sx={{ textTransform: "none" }}
-                  variant="outlined"
-                  onClick={() => setShowInstructionsBox(true)}
-                >
-                  Show Instructions <InfoIcon />
-                </Button>
-                {/* Question Details */}
+
                 <Box
                   sx={{
                     borderRadius: 2,
@@ -633,23 +587,13 @@ function Home() {
                 <Box
                   sx={{
                     position: "absolute",
-                    bottom: 0,
-                    left: 0,
-                    width: "95%",
-                    padding: 1,
-                    backgroundColor: "#fff",
-                    borderTop: "1px solid rgba(0,0,0,0.2)",
+                    bottom: 10,
+                    display: "flex",
+                    justifyContent: "center",
                   }}
                 >
-                  <Button
-                    sx={{
-                      textTransform: "none",
-                      width: "100%",
-                    }}
-                    variant="outlined"
-                    // onClick={handleSubmitExam}
-                  >
-                    Submit Exam
+                  <Button variant="contained" fullWidth>
+                    Submit
                   </Button>
                 </Box>
               </Box>
@@ -667,7 +611,6 @@ function Home() {
         handleClose={() => setShowExamStartConfirmation(false)}
       />
 
-      {/* Modal for Instruction Box */}
       <Modal
         open={showInstructionBox}
         onClose={() => setShowInstructionsBox(false)}
@@ -715,7 +658,6 @@ function Home() {
         </Box>
       </Modal>
 
-      {/* Modal for section */}
       <Modal
         open={showSectionBox}
         onClose={() => setShowSectionBox(false)}
