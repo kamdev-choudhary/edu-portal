@@ -101,6 +101,8 @@ function Home() {
     getResponse();
   }, [userId]);
 
+  const localExamResponse = JSON.parse(localStorage.getItem("response"));
+
   // Getting the Questions from Local Storage
   useEffect(() => {
     const questionsString = localStorage.getItem("questions");
@@ -224,11 +226,6 @@ function Home() {
 
   const handlePreviousQuestion = () => {
     setCurrentQuestionIndex((prevIndex) => prevIndex - 1);
-  };
-
-  // Handle Question changes
-  const handleChange = (event) => {
-    setValue(event.target.value);
   };
 
   // Create Response
@@ -646,26 +643,40 @@ function Home() {
                   <hr />
                   <Grid container spacing={1} sx={{}}>
                     {questions &&
-                      questions.map((question, index) => (
-                        <Grid item key={index}>
-                          <Avatar
-                            alt="Remy Sharp"
-                            src="/broken-image.jpg"
-                            sx={{
-                              bgcolor:
-                                currentQuestionIndex === index
-                                  ? "#28844f"
-                                  : undefined,
-                              height: 35,
-                              width: 35,
-                              cursor: "pointer",
-                            }}
-                            onClick={() => setCurrentQuestionIndex(index)}
-                          >
-                            {index + 1}
-                          </Avatar>
-                        </Grid>
-                      ))}
+                      questions.map((question, index) => {
+                        const storedResponses = JSON.parse(
+                          localStorage.getItem("response")
+                        );
+                        const hasResponse = storedResponses?.response?.filter(
+                          (response) => response.questionId === question._id
+                        );
+
+                        console.log(hasResponse);
+
+                        return (
+                          <Grid item key={index}>
+                            <Avatar
+                              sx={{
+                                bgcolor:
+                                  hasResponse.length > 0 &&
+                                  hasResponse[0]?.answer.length > 0
+                                    ? "#28844f"
+                                    : "#e0e0e0",
+                                height: 35,
+                                border:
+                                  currentQuestionIndex !== index
+                                    ? "#28844f"
+                                    : "2px solid rgba(255,0,0,1)",
+                                width: 35,
+                                cursor: "pointer",
+                              }}
+                              onClick={() => setCurrentQuestionIndex(index)}
+                            >
+                              {index + 1}
+                            </Avatar>
+                          </Grid>
+                        );
+                      })}
                   </Grid>
                 </Box>
                 <Box
@@ -696,7 +707,7 @@ function Home() {
         )}
       </Box>
 
-      {/* Confirmation Dialog */}
+      {/* Confirmation Dialog for start exam*/}
       <ConfirmationDialog
         open={showExamStartConfirmation}
         header={"Confirmation"}
