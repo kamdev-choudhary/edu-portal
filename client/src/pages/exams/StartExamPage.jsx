@@ -344,7 +344,7 @@ function Home() {
             <Box
               sx={{
                 flex: "0 0 auto",
-                p: 3,
+                p: 1,
                 marginBottom: 1,
               }}
             >
@@ -433,8 +433,22 @@ function Home() {
                       justifyContent: "space-between",
                     }}
                   >
-                    <h4>Time Left : {formatTime(remainingTime)}</h4>{" "}
-                    <CircleIcon />
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        alignContent: "center",
+                      }}
+                    >
+                      <Typography variant="body1">
+                        Time Left : {formatTime(remainingTime)}
+                      </Typography>
+                      &nbsp;&nbsp;&nbsp;
+                      <CircleIcon
+                        sx={{ color: calculateColor(remainingTime) }}
+                      />
+                    </Box>
+
                     <Box sx={{ display: "flex", gap: 1 }}>
                       <IconButton onClick={() => setShowSectionBox(true)}>
                         <DehazeIcon />
@@ -475,7 +489,7 @@ function Home() {
                 <Box
                   sx={{
                     p: 2,
-                    marginBottom: 2,
+                    // marginBottom: 2,
                   }}
                 >
                   <Grid container spacing={2}>
@@ -492,7 +506,16 @@ function Home() {
                         Clear
                       </Button>
                     </Grid>
-                    <Grid item xs={6} sm={6} md={3}>
+                    <Grid
+                      item
+                      xs={6}
+                      sm={6}
+                      md={3}
+                      sx={{
+                        display: "flex",
+                        justifyContent: !isLargeScreen && "right",
+                      }}
+                    >
                       <Button
                         variant="contained"
                         sx={{
@@ -517,7 +540,16 @@ function Home() {
                         Previous
                       </Button>
                     </Grid>
-                    <Grid item xs={6} sm={6} md={3}>
+                    <Grid
+                      item
+                      xs={6}
+                      sm={6}
+                      md={3}
+                      sx={{
+                        display: "flex",
+                        justifyContent: !isLargeScreen && "right",
+                      }}
+                    >
                       <Button
                         variant="contained"
                         color="success"
@@ -535,6 +567,13 @@ function Home() {
                         Save & Next
                       </Button>
                     </Grid>
+                    {!isLargeScreen && (
+                      <Grid item xs={12} md={12} lg={12}>
+                        <Button fullWidth variant="contained">
+                          Submit
+                        </Button>
+                      </Grid>
+                    )}
                   </Grid>
                 </Box>
               </Box>

@@ -9,7 +9,7 @@ const ExamSingleCorrect = (props) => {
     setCurrentQuestionIndex(props.currentQuestionIndex);
   }, [props.currentQuestionIndex]);
 
-  console.log(JSON.parse(localStorage.getItem("response")));
+  // console.log(JSON.parse(localStorage.getItem("response")));
 
   return (
     <>
