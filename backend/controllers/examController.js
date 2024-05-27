@@ -210,9 +210,20 @@ module.exports.createResponse = async (req, res, next) => {
 
 module.exports.submitExam = async (req, res, next) => {
   try {
-    const response = req.body;
-    const newResponse = new ExamResponse(response);
-    console.log(newResponse);
+    const { response, scholarId, examId } = req.body;
+    // console.log(response);
+    const examResponse = await ExamResponse.findOne({
+      examId,
+      scholarId,
+    });
+    if (!examResponse) {
+      res.status(401).json("Exam Response not found");
+    } else {
+      examResponse.examStatus = "submitted";
+      examResponse.response = response;
+      examResponse.save();
+      res.status(200).json("Exam Submitted SuccessFully");
+    }
   } catch (error) {
     next(error);
   }

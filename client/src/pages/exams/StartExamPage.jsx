@@ -19,6 +19,7 @@ import {
   useMediaQuery,
   CircularProgress,
   Modal,
+  Container,
 } from "@mui/material";
 import { useTheme, styled } from "@mui/material/styles";
 import InfoIcon from "@mui/icons-material/Info";
@@ -30,7 +31,7 @@ const StartExamPage = () => {
   const location = useLocation();
   const segments = location.pathname.split("/").filter((segment) => segment);
   const examId = segments[3];
-  const { batchId, userId, username } = useAuth();
+  const { userId, username } = useAuth();
 
   // State variables
   const [loading, setLoading] = useState(true);
@@ -38,6 +39,7 @@ const StartExamPage = () => {
   const [showInstruction, setShowInstructions] = useState(true);
   const [showInstructionBox, setShowInstructionsBox] = useState(false);
   const [showSectionBox, setShowSectionBox] = useState(false);
+  const [showSubmitExamModal, setShowSubmitExamModal] = useState(false);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [checkboxChecked, setCheckBoxChecked] = useState(false);
   const [examResponse, setExamResponse] = useState([]);
@@ -78,6 +80,7 @@ const StartExamPage = () => {
         setExam(response.data);
         setLoading(false);
         if (localStorage.getItem("examId") !== examId) {
+          localStorage.setItem("exam", JSON.stringify(response.data));
           localStorage.setItem("examId", response.data._id);
           localStorage.setItem(
             "questions",
@@ -87,7 +90,6 @@ const StartExamPage = () => {
           localStorage.setItem("timeLeft", response.data.examDuration * 60);
         }
       }
-
       if (ExamResponse.status === 200) {
         setExamResponse(ExamResponse.data);
       }
@@ -102,6 +104,7 @@ const StartExamPage = () => {
 
   useEffect(() => {
     if (localStorage.getItem("examId")) {
+      setExam(JSON.parse(localStorage.getItem("exam")));
       setLoading(false);
     } else {
       getExamAndResponse();
@@ -157,7 +160,7 @@ const StartExamPage = () => {
   const submitExam = async () => {
     const finalResponse = JSON.parse(localStorage.getItem("scholarResponse"));
     const response = await axios.post(
-      `${API_URL}/exam/submit/${userId}/${examId}`,
+      `${API_URL}/exams/submit/${userId}/${examId}`,
       finalResponse
     );
     if (response.status === 200) {
@@ -517,7 +520,11 @@ const StartExamPage = () => {
                     </Grid>
                     {!isLargeScreen && (
                       <Grid item xs={12} md={12} lg={12}>
-                        <Button fullWidth variant="contained">
+                        <Button
+                          onClick={() => setShowSubmitExamModal(true)}
+                          fullWidth
+                          variant="contained"
+                        >
                           Submit
                         </Button>
                       </Grid>
@@ -578,7 +585,7 @@ const StartExamPage = () => {
                 </Box>
                 <Button
                   sx={{ textTransform: "none" }}
-                  variant="outlined"
+                  variant="contained"
                   onClick={() => setShowInstructionsBox(true)}
                 >
                   Show Instructions <InfoIcon />
@@ -641,12 +648,12 @@ const StartExamPage = () => {
                   }}
                 >
                   <Button
+                    onClick={() => setShowSubmitExamModal(true)}
                     sx={{
                       textTransform: "none",
                       width: "100%",
                     }}
-                    variant="outlined"
-                    // onClick={handleSubmitExam}
+                    variant="contained"
                   >
                     Submit Exam
                   </Button>
@@ -799,6 +806,60 @@ const StartExamPage = () => {
                 })}
             </Grid>
           </Box>
+        </Box>
+      </Modal>
+      {/* Modal for submit Exam */}
+      <Modal
+        open={showSubmitExamModal}
+        onClose={() => setShowSubmitExamModal(false)}
+        aria-labelledby="exam-instruction-modal"
+        aria-describedby="exam-instruction-modal-showing-instuctions-for-exams"
+      >
+        <Box
+          sx={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: { xs: "90%", sm: "80%", md: "60%", lg: "50%" }, // Responsive width
+            maxHeight: "80%",
+            bgcolor: "background.paper",
+            boxShadow: 10,
+            overflow: "auto",
+            borderRadius: 2,
+            p: 2,
+          }}
+        >
+          <Container maxWidth="md">
+            <Box>
+              <Typography variant="h6">Submit Exam</Typography>
+            </Box>
+            <hr />
+            <Box>
+              <Grid container spacing={2}>
+                <Grid item xs={12}>
+                  <Box display="flex" justifyContent="space-between">
+                    <Button
+                      variant="contained"
+                      sx={{ textTransform: "none" }}
+                      color="error"
+                      onClick={() => setShowSubmitExamModal(false)}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      variant="contained"
+                      sx={{ textTransform: "none" }}
+                      color="primary"
+                      onClick={submitExam}
+                    >
+                      Submit
+                    </Button>
+                  </Box>
+                </Grid>
+              </Grid>
+            </Box>
+          </Container>
         </Box>
       </Modal>
     </>

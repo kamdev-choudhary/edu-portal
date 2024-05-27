@@ -65,18 +65,17 @@ export default function OnlineExamStudent() {
     getResponses();
   }, []);
 
- const handleStartExam = (examId) => {
-   const screenWidth = window.screen.width;
-   const screenHeight = window.screen.height;
-   const currentOrigin = window.location.origin;
+  const handleStartExam = (examId) => {
+    const screenWidth = window.screen.width;
+    const screenHeight = window.screen.height;
+    const currentOrigin = window.location.origin;
 
-   window.open(
-     `${currentOrigin}/exams/start/${userId}/${examId}`,
-     "Exams",
-     `width=${screenWidth},height=${screenHeight},resizable=yes,scrollbars=yes`
-   );
- };
-
+    window.open(
+      `${currentOrigin}/exams/start/${userId}/${examId}`,
+      "Exams",
+      `width=${screenWidth},height=${screenHeight},resizable=yes,scrollbars=yes`
+    );
+  };
 
   return (
     <Box>
@@ -132,19 +131,16 @@ export default function OnlineExamStudent() {
                       <Button
                         onClick={() => handleStartExam(exam._id)}
                         variant="contained"
-                        sx={{ borderRadius: 10 }}
+                        disabled={hasResponse[0]?.examStatus === "submitted"}
                       >
-                        {hasResponse[0]?.examId === exam._id
-                          ? "Resume"
-                          : "Start"}
+                        {hasResponse[0] ? "Resume" : "Start"}
                       </Button>
                     </StyledTableCell>
                     <StyledTableCell align="center">
                       <Button
                         variant="contained"
                         color="secondary"
-                        sx={{ borderRadius: 10 }}
-                        disabled={hasResponse[0]?.examStatus !== "Submitted"}
+                        disabled={hasResponse[0]?.examStatus !== "submitted"}
                       >
                         View
                       </Button>
