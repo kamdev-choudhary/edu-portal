@@ -14,6 +14,7 @@ const ExamSingleCorrect = (props) => {
     questionId: "",
     questionStatus: "visited",
     answer: [],
+    synced: false,
   });
 
   useEffect(() => {
@@ -23,8 +24,8 @@ const ExamSingleCorrect = (props) => {
       if (index !== null) {
         setCurrentQuestionIndex(index);
         const storedResponses = JSON.parse(
-          localStorage.getItem("response")
-        ) || { response: [] };
+          localStorage.getItem("scholarResponse")
+        );
         const existingResponse = storedResponses.response.find(
           (resp) => resp.questionId === props.questions[index]._id
         );
@@ -47,9 +48,7 @@ const ExamSingleCorrect = (props) => {
     };
     setQuestionResponse(updatedResponse);
 
-    let currentResponse = JSON.parse(localStorage.getItem("response")) || {
-      response: [],
-    };
+    let currentResponse = JSON.parse(localStorage.getItem("scholarResponse"));
     const existingResponseIndex = currentResponse.response.findIndex(
       (field) => field.questionId === updatedResponse.questionId
     );
@@ -59,7 +58,7 @@ const ExamSingleCorrect = (props) => {
     } else {
       currentResponse.response.push(updatedResponse);
     }
-    localStorage.setItem("response", JSON.stringify(currentResponse));
+    localStorage.setItem("scholarResponse", JSON.stringify(currentResponse));
   };
 
   const currentQuestion = questions[currentQuestionIndex] || {};

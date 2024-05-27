@@ -3,15 +3,13 @@ import { useLocation } from "react-router-dom";
 import axios from "axios";
 import { useAuth } from "../../Auth";
 import ConfirmationDialog from "../../components/ConfirmationDialog";
+import ExamSingleCorrect from "./ExamSingleCorrect";
+import ExamMultiCorrect from "./ExamMultiCorrect";
+import CircleIcon from "@mui/icons-material/Circle";
 
 // Import MUI Components
 import {
   Avatar,
-  Radio,
-  RadioGroup,
-  FormControlLabel,
-  FormControl,
-  FormLabel,
   IconButton,
   Button,
   Checkbox,
@@ -21,7 +19,6 @@ import {
   useMediaQuery,
   CircularProgress,
   Modal,
-  Container,
 } from "@mui/material";
 import { useTheme, styled } from "@mui/material/styles";
 import InfoIcon from "@mui/icons-material/Info";
@@ -31,7 +28,7 @@ const API_URL = import.meta.env.VITE_REACT_APP_API_URL;
 
 function Home() {
   const location = useLocation();
-  const { batchId, userId } = useAuth();
+  const { batchId, userId, username } = useAuth();
   const [loading, setLoading] = useState(true);
   const [exam, setExam] = useState([]);
   const [showInstruction, setShowInstructions] = useState(true);
@@ -55,10 +52,10 @@ function Home() {
   const theme = useTheme();
   const isLargeScreen = useMediaQuery(theme.breakpoints.up("md"));
   const segments = location.pathname.split("/").filter((segment) => segment);
+  const examId = segments[3];
 
   // Getting Exam from Server
   useEffect(() => {
-    const examId = segments[3];
     const getExam = async () => {
       try {
         const response = await axios.get(`${API_URL}/exams/start/${examId}`);
@@ -102,7 +99,9 @@ function Home() {
 
     getExam();
     getResponse();
-  }, []);
+  }, [userId]);
+
+  const localExamResponse = JSON.parse(localStorage.getItem("response"));
 
   // Getting the Questions from Local Storage
   useEffect(() => {
@@ -121,11 +120,80 @@ function Home() {
         console.error("Error parsing questions from localStorage:", error);
       }
     }
-  }, []);
+  }, [userId]);
+
+  useEffect(() => {
+    if (!showInstruction) {
+      // Enter full screen mode
+      const elem = document.documentElement;
+      if (elem.requestFullscreen) {
+        elem.requestFullscreen();
+      } else if (elem.mozRequestFullScreen) {
+        // Firefox
+        elem.mozRequestFullScreen();
+      } else if (elem.webkitRequestFullscreen) {
+        // Chrome, Safari, and Opera
+        elem.webkitRequestFullscreen();
+      } else if (elem.msRequestFullscreen) {
+        // IE/Edge
+        elem.msRequestFullscreen();
+      }
+
+      // Add event listener for visibility change
+      document.addEventListener("visibilitychange", handleVisibilityChange);
+
+      // Add event listener for before unload
+      window.addEventListener("beforeunload", handleBeforeUnload);
+
+      // Add event listener for back button
+      window.addEventListener("popstate", handleBackButton);
+
+      // Cleanup event listeners on component unmount
+      return () => {
+        document.removeEventListener(
+          "visibilitychange",
+          handleVisibilityChange
+        );
+        window.removeEventListener("beforeunload", handleBeforeUnload);
+        window.removeEventListener("popstate", handleBackButton);
+      };
+    }
+  }, [!showInstruction]);
+
+  const handleVisibilityChange = () => {
+    // if (document.hidden) {
+    //   alert(
+    //     "You have attempted to switch tabs or minimize the window. Your exam will be terminated."
+    //   );
+    //   // Implement any additional logic such as logging the attempt or ending the exam
+    // }
+  };
+
+  const handleBeforeUnload = (e) => {
+    const confirmationMessage =
+      "Are you sure you want to leave? Your exam will be terminated.";
+    e.returnValue = confirmationMessage; // Gecko, Trident, Chrome 34+
+    return confirmationMessage; // Gecko, WebKit, Chrome <34
+  };
+
+  const handleBackButton = (e) => {
+    // Prevent the default action (navigation) and show an alert
+    e.preventDefault();
+    alert("You cannot go back during the exam. Your exam will be terminated.");
+    // Optionally, you can also log the attempt or end the exam here
+    window.history.pushState(null, null, window.location.pathname); // push the state again to prevent back navigation
+  };
 
   // Submit Exam
-  const submitExam = () => {
-    console.log("Exam Submit");
+  const submitExam = async () => {
+    const finalResonse = JSON.parse(localStorage.getItem("response"));
+    const response = await axios.post(
+      `${API_URL}/exam/submit/${userId}/${examId}`,
+      finalResponse
+    );
+    if (response.status === 200) {
+      console.log("submitted Successfully");
+    }
   };
 
   // Countdown function
@@ -165,11 +233,6 @@ function Home() {
 
   const handlePreviousQuestion = () => {
     setCurrentQuestionIndex((prevIndex) => prevIndex - 1);
-  };
-
-  // Handle Question changes
-  const handleChange = (event) => {
-    setValue(event.target.value);
   };
 
   // Create Response
@@ -235,7 +298,6 @@ function Home() {
     );
   }
 
-  console.log(JSON.parse(localStorage.getItem("response")));
   return (
     <>
       <Box sx={{ height: "100%", width: "100vw" }}>
@@ -268,6 +330,9 @@ function Home() {
             >
               <Typography>Instructions</Typography>
             </Box>
+            <Box sx={{ display: "flex", justifyContent: "center", padding: 1 }}>
+              <Typography>Read the Instructions carefully.</Typography>
+            </Box>
             <Box sx={{ flex: "1 1 auto", overflow: "auto", p: "1rem 2rem" }}>
               <Typography variant="h5">Paper Instructions</Typography>
               <div>
@@ -283,7 +348,7 @@ function Home() {
             <Box
               sx={{
                 flex: "0 0 auto",
-                p: 3,
+                p: 1,
                 marginBottom: 1,
               }}
             >
@@ -372,7 +437,22 @@ function Home() {
                       justifyContent: "space-between",
                     }}
                   >
-                    <h4>Time Left : {formatTime(remainingTime)}</h4>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        alignContent: "center",
+                      }}
+                    >
+                      <Typography variant="body1">
+                        Time Left : {formatTime(remainingTime)}
+                      </Typography>
+                      &nbsp;&nbsp;&nbsp;
+                      <CircleIcon
+                        sx={{ color: calculateColor(remainingTime) }}
+                      />
+                    </Box>
+
                     <Box sx={{ display: "flex", gap: 1 }}>
                       <IconButton onClick={() => setShowSectionBox(true)}>
                         <DehazeIcon />
@@ -383,6 +463,7 @@ function Home() {
                     </Box>
                   </Box>
                 )}
+                {/* Questions */}
                 <Box
                   sx={{ flex: "1 1 auto", overflow: "auto", p: "1rem 2rem" }}
                 >
@@ -390,66 +471,20 @@ function Home() {
                     questions &&
                     currentQuestionIndex < questions.length && (
                       <>
-                        <Typography>Question : </Typography>
-                        <Typography
-                          dangerouslySetInnerHTML={{
-                            __html:
-                              questions[currentQuestionIndex].questionText,
-                          }}
-                        />
-                        <hr />
-                        <FormControl>
-                          <FormLabel id="demo-controlled-radio-buttons-group">
-                            Options
-                          </FormLabel>
-                          <RadioGroup
-                            aria-labelledby="demo-controlled-radio-buttons-group"
-                            name="controlled-radio-buttons-group"
-                            value={value}
-                            onChange={handleChange}
-                          >
-                            <FormControlLabel
-                              value={
-                                questions[currentQuestionIndex].option1
-                                  .isCorrect
-                              }
-                              control={<Radio />}
-                              label={
-                                questions[currentQuestionIndex].option1.text
-                              }
-                            />
-                            <FormControlLabel
-                              value={
-                                questions[currentQuestionIndex].option2
-                                  .isCorrect
-                              }
-                              control={<Radio />}
-                              label={
-                                questions[currentQuestionIndex].option2.text
-                              }
-                            />
-                            <FormControlLabel
-                              value={
-                                questions[currentQuestionIndex].option3
-                                  .isCorrect
-                              }
-                              control={<Radio />}
-                              label={
-                                questions[currentQuestionIndex].option3.text
-                              }
-                            />
-                            <FormControlLabel
-                              value={
-                                questions[currentQuestionIndex].option4
-                                  .isCorrect
-                              }
-                              control={<Radio />}
-                              label={
-                                questions[currentQuestionIndex].option4.text
-                              }
-                            />
-                          </RadioGroup>
-                        </FormControl>
+                        {questions[currentQuestionIndex]?.questionType ===
+                          "singleCorrect" && (
+                          <ExamSingleCorrect
+                            questions={questions}
+                            currentQuestionIndex={currentQuestionIndex}
+                          />
+                        )}
+                        {questions[currentQuestionIndex]?.questionType ===
+                          "multiCorrect" && (
+                          <ExamMultiCorrect
+                            questions={questions}
+                            currentQuestionIndex={currentQuestionIndex}
+                          />
+                        )}
                       </>
                     )}
                 </Box>
@@ -457,64 +492,96 @@ function Home() {
                 {/* Buttons */}
                 <Box
                   sx={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    flexWrap: "wrap",
                     p: 2,
-                    marginBottom: 2,
                   }}
                 >
-                  <Button
-                    variant="contained"
-                    sx={{
-                      backgroundColor: "#000",
-                      color: "white",
-                      textTransform: "none",
-                      minWidth: 160,
-                    }}
-                  >
-                    Clear
-                  </Button>
-                  <Button
-                    variant="contained"
-                    sx={{
-                      backgroundColor: "#800080",
-                      color: "white",
-                      textTransform: "none",
-                      minWidth: 160,
-                    }}
-                  >
-                    Mark for review and Next
-                  </Button>
-                  <Button
-                    variant="contained"
-                    onClick={handlePreviousQuestion}
-                    sx={{ textTransform: "none", minWidth: 160 }}
-                    disabled={
-                      !exam.exam || !questions || currentQuestionIndex === 0
-                    }
-                  >
-                    Previous
-                  </Button>
-                  <Button
-                    variant="contained"
-                    color="success"
-                    onClick={handleNextQuestion}
-                    sx={{
-                      textTransform: "none",
-                      minWidth: 160,
-                    }}
-                    disabled={
-                      !exam.exam ||
-                      !questions ||
-                      currentQuestionIndex === questions.length - 1
-                    }
-                  >
-                    Save & Next
-                  </Button>
+                  <Grid container spacing={2}>
+                    <Grid item xs={6} sm={6} md={3}>
+                      <Button
+                        variant="contained"
+                        sx={{
+                          backgroundColor: "#000",
+                          color: "white",
+                          textTransform: "none",
+                          minWidth: 160,
+                        }}
+                      >
+                        Clear
+                      </Button>
+                    </Grid>
+                    <Grid
+                      item
+                      xs={6}
+                      sm={6}
+                      md={3}
+                      sx={{
+                        display: "flex",
+                        justifyContent: !isLargeScreen && "right",
+                      }}
+                    >
+                      <Button
+                        variant="contained"
+                        sx={{
+                          backgroundColor: "#800080",
+                          color: "white",
+                          textTransform: "none",
+                          minWidth: 160,
+                        }}
+                      >
+                        Mark for Review
+                      </Button>
+                    </Grid>
+                    <Grid item xs={6} sm={6} md={3}>
+                      <Button
+                        variant="contained"
+                        onClick={handlePreviousQuestion}
+                        sx={{ textTransform: "none", minWidth: 160 }}
+                        disabled={
+                          !exam.exam || !questions || currentQuestionIndex === 0
+                        }
+                      >
+                        Previous
+                      </Button>
+                    </Grid>
+                    <Grid
+                      item
+                      xs={6}
+                      sm={6}
+                      md={3}
+                      sx={{
+                        display: "flex",
+                        justifyContent: !isLargeScreen && "right",
+                      }}
+                    >
+                      <Button
+                        variant="contained"
+                        color="success"
+                        onClick={handleNextQuestion}
+                        sx={{
+                          textTransform: "none",
+                          minWidth: 160,
+                        }}
+                        disabled={
+                          !exam.exam ||
+                          !questions ||
+                          currentQuestionIndex === questions.length - 1
+                        }
+                      >
+                        Save & Next
+                      </Button>
+                    </Grid>
+                    {!isLargeScreen && (
+                      <Grid item xs={12} md={12} lg={12}>
+                        <Button fullWidth variant="contained">
+                          Submit
+                        </Button>
+                      </Grid>
+                    )}
+                  </Grid>
                 </Box>
               </Box>
             </Box>
+            {/* Sidepanel */}
             {isLargeScreen && (
               <Box
                 sx={{
@@ -522,13 +589,27 @@ function Home() {
                   padding: 1,
                   display: "flex",
                   flexDirection: "column",
-                  gap: 2,
+                  gap: 1,
                   border: "1px solid rgba(0,0,0,0.2)",
                   borderRadius: 2,
                   margin: 1,
                   position: "relative",
                 }}
               >
+                <Box
+                  sx={{
+                    p: 1,
+                    border: "1px solid rgba(0,0,0,0.2)",
+                    borderRadius: 1,
+                    display: "flex",
+                    justifyContent: "center",
+                    flexDirection: "column",
+                  }}
+                >
+                  <Typography>
+                    <strong>Name:</strong> {username}
+                  </Typography>
+                </Box>
                 <Box
                   sx={{
                     borderRadius: 2,
@@ -550,7 +631,14 @@ function Home() {
                     Time Left: {formatTime(remainingTime)}
                   </Typography>
                 </Box>
-
+                <Button
+                  sx={{ textTransform: "none" }}
+                  variant="outlined"
+                  onClick={() => setShowInstructionsBox(true)}
+                >
+                  Show Instructions <InfoIcon />
+                </Button>
+                {/* Question Details */}
                 <Box
                   sx={{
                     borderRadius: 2,
@@ -562,38 +650,60 @@ function Home() {
                   <hr />
                   <Grid container spacing={1} sx={{}}>
                     {questions &&
-                      questions.map((question, index) => (
-                        <Grid item key={index}>
-                          <Avatar
-                            alt="Remy Sharp"
-                            src="/broken-image.jpg"
-                            sx={{
-                              bgcolor:
-                                currentQuestionIndex === index
-                                  ? "#28844f"
-                                  : undefined,
-                              height: 35,
-                              width: 35,
-                              cursor: "pointer",
-                            }}
-                            onClick={() => setCurrentQuestionIndex(index)}
-                          >
-                            {index + 1}
-                          </Avatar>
-                        </Grid>
-                      ))}
+                      questions.map((question, index) => {
+                        const storedResponses = JSON.parse(
+                          localStorage.getItem("response")
+                        );
+                        const hasResponse = storedResponses?.response?.filter(
+                          (response) => response.questionId === question._id
+                        );
+
+                        return (
+                          <Grid item key={index}>
+                            <Avatar
+                              sx={{
+                                bgcolor:
+                                  hasResponse.length > 0 &&
+                                  hasResponse[0]?.answer.length > 0
+                                    ? "#28844f"
+                                    : "#e0e0e0",
+                                height: 35,
+                                border:
+                                  currentQuestionIndex !== index
+                                    ? "#28844f"
+                                    : "2px solid rgba(255,0,0,1)",
+                                width: 35,
+                                cursor: "pointer",
+                              }}
+                              onClick={() => setCurrentQuestionIndex(index)}
+                            >
+                              {index + 1}
+                            </Avatar>
+                          </Grid>
+                        );
+                      })}
                   </Grid>
                 </Box>
                 <Box
                   sx={{
                     position: "absolute",
-                    bottom: 10,
-                    display: "flex",
-                    justifyContent: "center",
+                    bottom: 0,
+                    left: 0,
+                    width: "95%",
+                    padding: 1,
+                    backgroundColor: "#fff",
+                    borderTop: "1px solid rgba(0,0,0,0.2)",
                   }}
                 >
-                  <Button variant="contained" fullWidth>
-                    Submit
+                  <Button
+                    sx={{
+                      textTransform: "none",
+                      width: "100%",
+                    }}
+                    variant="outlined"
+                    // onClick={handleSubmitExam}
+                  >
+                    Submit Exam
                   </Button>
                 </Box>
               </Box>
@@ -602,7 +712,7 @@ function Home() {
         )}
       </Box>
 
-      {/* Confirmation Dialog */}
+      {/* Confirmation Dialog for start exam*/}
       <ConfirmationDialog
         open={showExamStartConfirmation}
         header={"Confirmation"}
@@ -611,6 +721,7 @@ function Home() {
         handleClose={() => setShowExamStartConfirmation(false)}
       />
 
+      {/* Modal for Instruction Box */}
       <Modal
         open={showInstructionBox}
         onClose={() => setShowInstructionsBox(false)}
@@ -658,6 +769,7 @@ function Home() {
         </Box>
       </Modal>
 
+      {/* Modal for section */}
       <Modal
         open={showSectionBox}
         onClose={() => setShowSectionBox(false)}
@@ -697,11 +809,51 @@ function Home() {
             </Button>
           </Box>
           <hr />
-          <Typography
-            dangerouslySetInnerHTML={{
-              __html: exam.exam.examInstruction,
+          <Box
+            sx={{
+              borderRadius: 2,
+              border: "1px solid rgba(0,0,0,0.2)",
+              padding: 2,
             }}
-          />
+          >
+            <Typography>Question Details</Typography>
+            <hr />
+            <Grid container spacing={1} sx={{}}>
+              {questions &&
+                questions.map((question, index) => {
+                  const storedResponses = JSON.parse(
+                    localStorage.getItem("response")
+                  );
+                  const hasResponse = storedResponses?.response?.filter(
+                    (response) => response.questionId === question._id
+                  );
+
+                  return (
+                    <Grid item key={index}>
+                      <Avatar
+                        sx={{
+                          bgcolor:
+                            hasResponse.length > 0 &&
+                            hasResponse[0]?.answer.length > 0
+                              ? "#28844f"
+                              : "#e0e0e0",
+                          height: 35,
+                          border:
+                            currentQuestionIndex !== index
+                              ? "#28844f"
+                              : "2px solid rgba(255,0,0,1)",
+                          width: 35,
+                          cursor: "pointer",
+                        }}
+                        onClick={() => setCurrentQuestionIndex(index)}
+                      >
+                        {index + 1}
+                      </Avatar>
+                    </Grid>
+                  );
+                })}
+            </Grid>
+          </Box>
         </Box>
       </Modal>
     </>

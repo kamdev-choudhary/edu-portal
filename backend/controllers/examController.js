@@ -188,7 +188,7 @@ module.exports.getExamResponse = async (req, res, next) => {
       scholarId: userId,
     });
     if (!myResponse) {
-      res.status(200).json({ msg: "Response not found" });
+      res.status(401).json({ msg: "Response not found" });
     } else {
       res.status(200).json(myResponse);
     }
@@ -201,8 +201,18 @@ module.exports.createResponse = async (req, res, next) => {
   try {
     const responseData = req.body;
     const newResponse = new ExamResponse(responseData);
-    newResponse.save();
+    await newResponse.save();
     res.status(200).json({ msg: "Successfully created Response" });
+  } catch (error) {
+    next(error);
+  }
+};
+
+module.exports.submitExam = async (req, res, next) => {
+  try {
+    const response = req.body;
+    const newResponse = new ExamResponse(response);
+    console.log(newResponse);
   } catch (error) {
     next(error);
   }

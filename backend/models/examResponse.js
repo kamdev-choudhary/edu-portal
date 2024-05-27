@@ -1,6 +1,12 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
+const responseSchema = new Schema({
+  questionId: String,
+  questionStatus: String,
+  answer: [{ type: String }],
+});
+
 const examResponseSchema = new Schema({
   examId: String,
   scholarId: String,
@@ -9,17 +15,7 @@ const examResponseSchema = new Schema({
     ref: "ExamTemplate",
   },
   examStatus: String,
-  response: [
-    {
-      questionId: String,
-      timeTaken: String,
-      answer: [
-        {
-          type: String,
-        },
-      ],
-    },
-  ],
+  response: [responseSchema],
 });
 
 const ExamResponse = mongoose.model("ExamResponse", examResponseSchema);

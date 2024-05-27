@@ -17,6 +17,7 @@ import { useAuth } from "../../Auth";
 
 const API_URL = import.meta.env.VITE_REACT_APP_API_URL;
 
+console.log(API_URL);
 const defaultTheme = createTheme();
 
 export default function AuthPage() {
@@ -78,6 +79,7 @@ export default function AuthPage() {
     const isValid = validateForm();
     if (isValid) {
       try {
+        console.log(`${API_URL}/auth/login`);
         const response = await fetch(`${API_URL}/auth/login`, {
           method: "POST",
           headers: {

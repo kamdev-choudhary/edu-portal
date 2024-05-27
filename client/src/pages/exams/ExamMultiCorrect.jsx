@@ -53,9 +53,7 @@ const ExamMultiCorrect = (props) => {
     setQuestionResponse(updatedResponse);
 
     // Update localStorage
-    let currentResponse = JSON.parse(localStorage.getItem("response")) || {
-      response: [],
-    };
+    let currentResponse = JSON.parse(localStorage.getItem("scholarResponse"));
     const existingResponseIndex = currentResponse.response.findIndex(
       (field) => field.questionId === updatedResponse.questionId
     );
@@ -65,7 +63,7 @@ const ExamMultiCorrect = (props) => {
     } else {
       currentResponse.response.push(updatedResponse);
     }
-    localStorage.setItem("response", JSON.stringify(currentResponse));
+    localStorage.setItem("scholarResponse", JSON.stringify(currentResponse));
   };
 
   const currentQuestion = questions[currentQuestionIndex] || {};

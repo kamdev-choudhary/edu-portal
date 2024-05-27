@@ -22,5 +22,7 @@ router
 
 router.route("/start/createresponse").post(examController.createResponse);
 
+router.route("/submit/:userId/:examId").post(examController.submitExam);
+
 router.route("/addtobatch").post(examController.addToBatch);
 module.exports = router;

@@ -16,17 +16,15 @@ import Menu from "@mui/material/Menu";
 import MenuIcon from "@mui/icons-material/Menu";
 import Container from "@mui/material/Container";
 import Avatar from "@mui/material/Avatar";
-import Button from "@mui/material/Button";
 import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
-import AdbIcon from "@mui/icons-material/Adb";
 
 const pages = [
   { name: "Admin", path: "/admin", available: ["admin"] },
   { name: "Question Bank", path: "/question-bank", available: ["admin"] },
-  { name: "Library", path: "/library", available: ["admin"] },
-  { name: "Exams", path: "/exams", available: ["admin", "student"] },
+  { name: "Library", path: "/library", available: ["admin", "student"] },
   { name: "Lectures", path: "/lectures", available: ["admin", "student"] },
+  { name: "Exams", path: "/exams", available: ["admin", "student"] },
 ];
 
 function Navbar() {

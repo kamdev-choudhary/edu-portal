@@ -7,7 +7,7 @@ import ExamSingleCorrect from "./ExamSingleCorrect";
 import ExamMultiCorrect from "./ExamMultiCorrect";
 import CircleIcon from "@mui/icons-material/Circle";
 
-// Import MUI Components
+//  MUI Components
 import {
   Avatar,
   IconButton,
@@ -26,140 +26,109 @@ import DehazeIcon from "@mui/icons-material/Dehaze";
 
 const API_URL = import.meta.env.VITE_REACT_APP_API_URL;
 
-function Home() {
+const StartExamPage = () => {
   const location = useLocation();
+  const segments = location.pathname.split("/").filter((segment) => segment);
+  const examId = segments[3];
   const { batchId, userId, username } = useAuth();
+
+  // State variables
   const [loading, setLoading] = useState(true);
   const [exam, setExam] = useState([]);
   const [showInstruction, setShowInstructions] = useState(true);
   const [showInstructionBox, setShowInstructionsBox] = useState(false);
   const [showSectionBox, setShowSectionBox] = useState(false);
-  const [checkboxChecked, setCheckBoxChecked] = useState(false);
-  const [questions, setQuestions] = useState([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [value, setValue] = useState("");
-  const [examAssigned, setExamAssigned] = useState([]);
+  const [checkboxChecked, setCheckBoxChecked] = useState(false);
+  const [examResponse, setExamResponse] = useState([]);
+  const [timeLeft, setTimeLeft] = useState(1);
   const [showExamStartConfirmation, setShowExamStartConfirmation] =
     useState(false);
-  const [remainingTime, setRemainingTime] = useState(null);
-  const [examResponse, setExamResponse] = useState([]);
+  const [questions, setQuestions] = useState([]);
   const [newResponse, setNewResponse] = useState({
-    examId: "",
-    scholarId: "",
-    examStatus: "started Not Submit",
+    examId: examId,
+    scholarId: userId,
+    response: [],
+    examStatus: "started",
   });
-
   const theme = useTheme();
   const isLargeScreen = useMediaQuery(theme.breakpoints.up("md"));
-  const segments = location.pathname.split("/").filter((segment) => segment);
 
-  // Getting Exam from Server
-  useEffect(() => {
-    const examId = segments[3];
-    const getExam = async () => {
-      try {
-        const response = await axios.get(`${API_URL}/exams/start/${examId}`);
-        if (response.status === 200) {
-          setExam(response.data);
-          setLoading(false);
-          if (localStorage.getItem("examTemplateId") !== examId) {
-            localStorage.setItem("examTemplateId", examId);
-            localStorage.setItem(
-              "questions",
-              JSON.stringify(response.data.exam.questions)
-            );
-            localStorage.setItem(
-              "remainingTime",
-              response.data.examDuration * 60
-            );
-          }
-          setExamAssigned(
-            response?.data?.examAssigned?.filter(
-              (examAssign) => examAssign.batchId === batchId
-            )[0]
-          );
-        }
-      } catch (error) {
-        console.error("Error fetching exam:", error);
-      }
-    };
+  // Create Response
+  const handleCreateResponse = async () => {
+    const newResponseData = newResponse;
+    const response = await axios.post(
+      `${API_URL}/exams/start/createresponse`,
+      newResponseData
+    );
+    if (response.status === 200) {
+      console.log("response created Succeefully");
+    }
+  };
 
-    // Get response
-    const getResponse = async () => {
-      const response = await axios.get(
+  // Getting exam
+  const getExamAndResponse = async () => {
+    try {
+      console.log("getting Responses");
+      const response = await axios.get(`${API_URL}/exams/start/${examId}`);
+      const ExamResponse = await axios.get(
         `${API_URL}/exams/start/response/${userId}/${examId}`
       );
       if (response.status === 200) {
-        setExamResponse(response.data);
-        if (localStorage.getItem("examTemplateId") !== examId) {
-          localStorage.setItem("response", JSON.stringify(response.data));
+        setExam(response.data);
+        setLoading(false);
+        if (localStorage.getItem("examId") !== examId) {
+          localStorage.setItem("examId", response.data._id);
+          localStorage.setItem(
+            "questions",
+            JSON.stringify(response.data.exam.questions)
+          );
+          localStorage.setItem("scholarResponse", JSON.stringify(newResponse));
+          localStorage.setItem("timeLeft", response.data.examDuration * 60);
         }
       }
-    };
 
-    getExam();
-    getResponse();
-  }, [userId]);
+      if (ExamResponse.status === 200) {
+        setExamResponse(ExamResponse.data);
+      }
+    } catch (error) {
+      if (error.response && error.response.status === 401) {
+        handleCreateResponse();
+      } else {
+        console.error("Error fetching exam or response:", error);
+      }
+    }
+  };
 
-  const localExamResponse = JSON.parse(localStorage.getItem("response"));
+  useEffect(() => {
+    if (localStorage.getItem("examId")) {
+      setLoading(false);
+    } else {
+      getExamAndResponse();
+    }
+  }, []);
 
-  // Getting the Questions from Local Storage
+  //Getting Questions from LocalStorage
   useEffect(() => {
     const questionsString = localStorage.getItem("questions");
+    setExamResponse(JSON.parse(localStorage.getItem("scholarResponse")));
     if (questionsString) {
       try {
         const questions = JSON.parse(questionsString);
         const sortedQuestions = questions.sort((a, b) => {
-          if (a.text < b.text) return -1;
-          if (a.text > b.text) return 1;
+          if (a.questionType < b.questionType) return 1;
+          if (a.questionType > b.questionType) return -1;
           return 0;
         });
-
         setQuestions(sortedQuestions);
+        setLoading(false);
       } catch (error) {
         console.error("Error parsing questions from localStorage:", error);
       }
     }
-  }, [userId]);
+  }, [exam, showInstruction]);
 
-  useEffect(() => {
-    if (!showInstruction) {
-      // Enter full screen mode
-      const elem = document.documentElement;
-      if (elem.requestFullscreen) {
-        elem.requestFullscreen();
-      } else if (elem.mozRequestFullScreen) {
-        // Firefox
-        elem.mozRequestFullScreen();
-      } else if (elem.webkitRequestFullscreen) {
-        // Chrome, Safari, and Opera
-        elem.webkitRequestFullscreen();
-      } else if (elem.msRequestFullscreen) {
-        // IE/Edge
-        elem.msRequestFullscreen();
-      }
-
-      // Add event listener for visibility change
-      document.addEventListener("visibilitychange", handleVisibilityChange);
-
-      // Add event listener for before unload
-      window.addEventListener("beforeunload", handleBeforeUnload);
-
-      // Add event listener for back button
-      window.addEventListener("popstate", handleBackButton);
-
-      // Cleanup event listeners on component unmount
-      return () => {
-        document.removeEventListener(
-          "visibilitychange",
-          handleVisibilityChange
-        );
-        window.removeEventListener("beforeunload", handleBeforeUnload);
-        window.removeEventListener("popstate", handleBackButton);
-      };
-    }
-  }, [!showInstruction]);
-
+  // Functions
   const handleVisibilityChange = () => {
     // if (document.hidden) {
     //   alert(
@@ -185,25 +154,31 @@ function Home() {
   };
 
   // Submit Exam
-  const submitExam = () => {
-    console.log("Exam Submit");
+  const submitExam = async () => {
+    const finalResponse = JSON.parse(localStorage.getItem("scholarResponse"));
+    const response = await axios.post(
+      `${API_URL}/exam/submit/${userId}/${examId}`,
+      finalResponse
+    );
+    if (response.status === 200) {
+      console.log("submitted Successfully");
+    }
   };
 
   // Countdown function
   function startCountdown() {
-    let remainingTimeInLs =
-      parseInt(localStorage.getItem("remainingTime"), 10) || 0;
+    let timeLeftInLs = parseInt(localStorage.getItem("timeLeft"), 10) || 0;
 
     const intervalId = setInterval(async () => {
-      if (remainingTimeInLs > 0) {
-        remainingTimeInLs -= 1;
-        localStorage.setItem("remainingTime", remainingTimeInLs);
-        setRemainingTime(remainingTimeInLs);
+      if (timeLeftInLs > 0) {
+        timeLeftInLs -= 1;
+        localStorage.setItem("timeLeft", timeLeftInLs);
+        setTimeLeft(timeLeftInLs);
 
         // Updating Remaining Time
         try {
           await axios.get(
-            `${API_URL}/exams/start/updatetime/${segments[3]}/${segments[2]}/${remainingTimeInLs}`
+            `${API_URL}/exams/start/updatetime/${segments[3]}/${segments[2]}/${timeLeftInLs}`
           );
         } catch (error) {
           console.log(error);
@@ -228,20 +203,6 @@ function Home() {
     setCurrentQuestionIndex((prevIndex) => prevIndex - 1);
   };
 
-  // Create Response
-  const handleCreateResponse = async () => {
-    const newResponseData = newResponse;
-    newResponseData.examId = segments[3];
-    newResponseData.scholarId = userId;
-    const response = await axios.post(
-      `${API_URL}/exams/start/createresponse`,
-      newResponseData
-    );
-    if (response.status === 200) {
-      console.log("response created Succeefully");
-    }
-  };
-
   // Exam Start Confirmation
   const handleExamStartConfirmation = () => {
     setShowExamStartConfirmation(true);
@@ -252,7 +213,6 @@ function Home() {
     setShowExamStartConfirmation(false);
     setShowInstructions(false);
     startCountdown();
-    handleCreateResponse();
   };
 
   // Resume exam
@@ -274,8 +234,8 @@ function Home() {
   }
 
   // Color Change for Time
-  const calculateColor = (remainingTime) => {
-    const percentage = (remainingTime / (exam.examDuration * 60)) * 100;
+  const calculateColor = (timeLeft) => {
+    const percentage = (timeLeft / (exam.examDuration * 60)) * 100;
     const hue = (percentage / 100) * 120;
     return `hsl(${hue}, 100%, 50%)`;
   };
@@ -332,7 +292,7 @@ function Home() {
                 <Box>
                   <Typography
                     dangerouslySetInnerHTML={{
-                      __html: exam.exam.examInstruction,
+                      __html: exam?.exam?.examInstruction,
                     }}
                   />
                 </Box>
@@ -370,7 +330,7 @@ function Home() {
                       justifyContent: isLargeScreen ? "flex-end" : "center",
                     }}
                   >
-                    {examResponse.examStatus === "started Not Submit" ? (
+                    {examResponse?.examStatus === "started" ? (
                       <Button
                         disabled={!checkboxChecked}
                         onClick={handleResumeExam}
@@ -438,12 +398,10 @@ function Home() {
                       }}
                     >
                       <Typography variant="body1">
-                        Time Left : {formatTime(remainingTime)}
+                        Time Left : {formatTime(timeLeft)}
                       </Typography>
                       &nbsp;&nbsp;&nbsp;
-                      <CircleIcon
-                        sx={{ color: calculateColor(remainingTime) }}
-                      />
+                      <CircleIcon sx={{ color: calculateColor(timeLeft) }} />
                     </Box>
 
                     <Box sx={{ display: "flex", gap: 1 }}>
@@ -529,9 +487,7 @@ function Home() {
                         variant="contained"
                         onClick={handlePreviousQuestion}
                         sx={{ textTransform: "none", minWidth: 160 }}
-                        disabled={
-                          !exam.exam || !questions || currentQuestionIndex === 0
-                        }
+                        disabled={currentQuestionIndex === 0}
                       >
                         Previous
                       </Button>
@@ -554,11 +510,7 @@ function Home() {
                           textTransform: "none",
                           minWidth: 160,
                         }}
-                        disabled={
-                          !exam.exam ||
-                          !questions ||
-                          currentQuestionIndex === questions.length - 1
-                        }
+                        disabled={currentQuestionIndex === questions.length - 1}
                       >
                         Save & Next
                       </Button>
@@ -606,7 +558,7 @@ function Home() {
                 <Box
                   sx={{
                     borderRadius: 2,
-                    border: `1px solid ${calculateColor(remainingTime)}`,
+                    border: `1px solid ${calculateColor(timeLeft)}`,
                     p: 1,
                     display: "flex",
                     justifyContent: "center",
@@ -621,7 +573,7 @@ function Home() {
                       fontSize: "1rem",
                     }}
                   >
-                    Time Left: {formatTime(remainingTime)}
+                    Time Left: {formatTime(timeLeft)}
                   </Typography>
                 </Box>
                 <Button
@@ -645,20 +597,18 @@ function Home() {
                     {questions &&
                       questions.map((question, index) => {
                         const storedResponses = JSON.parse(
-                          localStorage.getItem("response")
+                          localStorage.getItem("scholarResponse")
                         );
                         const hasResponse = storedResponses?.response?.filter(
                           (response) => response.questionId === question._id
                         );
-
-                        console.log(hasResponse);
 
                         return (
                           <Grid item key={index}>
                             <Avatar
                               sx={{
                                 bgcolor:
-                                  hasResponse.length > 0 &&
+                                  hasResponse?.length > 0 &&
                                   hasResponse[0]?.answer.length > 0
                                     ? "#28844f"
                                     : "#e0e0e0",
@@ -758,7 +708,7 @@ function Home() {
           <hr />
           <Typography
             dangerouslySetInnerHTML={{
-              __html: exam.exam.examInstruction,
+              __html: exam.examInstruction,
             }}
           />
         </Box>
@@ -804,15 +754,55 @@ function Home() {
             </Button>
           </Box>
           <hr />
-          <Typography
-            dangerouslySetInnerHTML={{
-              __html: exam.exam.examInstruction,
+          <Box
+            sx={{
+              borderRadius: 2,
+              border: "1px solid rgba(0,0,0,0.2)",
+              padding: 2,
             }}
-          />
+          >
+            <Typography>Question Details</Typography>
+            <hr />
+            <Grid container spacing={1} sx={{}}>
+              {questions &&
+                questions.map((question, index) => {
+                  const storedResponses = JSON.parse(
+                    localStorage.getItem("response")
+                  );
+                  const hasResponse = storedResponses?.response?.filter(
+                    (response) => response.questionId === question._id
+                  );
+
+                  return (
+                    <Grid item key={index}>
+                      <Avatar
+                        sx={{
+                          bgcolor:
+                            hasResponse?.length > 0 &&
+                            hasResponse[0]?.answer.length > 0
+                              ? "#28844f"
+                              : "#e0e0e0",
+                          height: 35,
+                          border:
+                            currentQuestionIndex !== index
+                              ? "#28844f"
+                              : "2px solid rgba(255,0,0,1)",
+                          width: 35,
+                          cursor: "pointer",
+                        }}
+                        onClick={() => setCurrentQuestionIndex(index)}
+                      >
+                        {index + 1}
+                      </Avatar>
+                    </Grid>
+                  );
+                })}
+            </Grid>
+          </Box>
         </Box>
       </Modal>
     </>
   );
-}
+};
 
-export default Home;
+export default StartExamPage;
