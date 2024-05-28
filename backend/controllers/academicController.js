@@ -2,7 +2,7 @@ const Academic = require("../models/academic");
 
 module.exports.academicData = async (req, res, next) => {
   try {
-    const academic = await Academic.find({});
+    const academic = await Academic.findOne({});
     res.status(200).json({ academic });
   } catch (error) {
     next(error);

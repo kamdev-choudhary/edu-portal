@@ -16,6 +16,7 @@ import GroupsIcon from "@mui/icons-material/Groups";
 import Users from "./Users";
 import ExamMaster from "./ExamMaster";
 import ErrorPage from "../ErrorPage";
+import Academic from "./Academic";
 
 const sections = [
   { name: "User", id: "user", icon: <PersonIcon />, page: <Users /> },
@@ -24,7 +25,7 @@ const sections = [
     name: "Academic",
     id: "academic",
     icon: <SchoolIcon />,
-    page: <ErrorPage />,
+    page: <Academic />,
   },
   {
     name: "Batch",

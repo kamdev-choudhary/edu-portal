@@ -96,8 +96,7 @@ export default function OnlineExamStudent() {
                 </StyledTableCell>
                 <StyledTableCell align="center">Exam End Time</StyledTableCell>
                 <StyledTableCell align="center">Exam Status</StyledTableCell>
-                <StyledTableCell align="center">Start Exam</StyledTableCell>
-                <StyledTableCell align="center">View Result</StyledTableCell>
+                <StyledTableCell align="center">Action</StyledTableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -128,22 +127,22 @@ export default function OnlineExamStudent() {
                         : "Not Started"}
                     </StyledTableCell>
                     <StyledTableCell align="center">
-                      <Button
-                        onClick={() => handleStartExam(exam._id)}
-                        variant="contained"
-                        disabled={hasResponse[0]?.examStatus === "submitted"}
-                      >
-                        {hasResponse[0] ? "Resume" : "Start"}
-                      </Button>
-                    </StyledTableCell>
-                    <StyledTableCell align="center">
-                      <Button
-                        variant="contained"
-                        color="secondary"
-                        disabled={hasResponse[0]?.examStatus !== "submitted"}
-                      >
-                        View
-                      </Button>
+                      {hasResponse[0]?.examStatus === "submitted" ? (
+                        <Button
+                          variant="contained"
+                          color="secondary"
+                          disabled={hasResponse[0]?.examStatus !== "submitted"}
+                        >
+                          View
+                        </Button>
+                      ) : (
+                        <Button
+                          onClick={() => handleStartExam(exam._id)}
+                          variant="contained"
+                        >
+                          {hasResponse[0] ? "Resume" : "Start"}
+                        </Button>
+                      )}
                     </StyledTableCell>
                   </StyledTableRow>
                 );

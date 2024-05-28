@@ -11,6 +11,7 @@ import BookIssue from "./pages/library/BookIssue";
 import StudentDashboard from "./pages/dashboard/ScholarDashboard";
 import Exams from "./pages/exams/Exams";
 import LecturePage from "./pages/lectures/LecturePage";
+import StudentLibrary from "./pages/library/StudentLibrary";
 
 import Profile from "./components/Profile";
 import StartExamPage from "./pages/exams/StartExamPage";
@@ -75,5 +76,11 @@ export const routes = [
     name: "Lectures",
     available: ["admin", "student"],
     element: <StartExamPage />,
+  },
+  {
+    path: "/library",
+    name: "Lectures",
+    available: ["student"],
+    element: <StudentLibrary />,
   },
 ];

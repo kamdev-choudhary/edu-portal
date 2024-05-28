@@ -16,8 +16,6 @@ import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../../Auth";
 
 const API_URL = import.meta.env.VITE_REACT_APP_API_URL;
-
-console.log(API_URL);
 const defaultTheme = createTheme();
 
 export default function AuthPage() {
