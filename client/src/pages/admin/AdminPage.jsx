@@ -92,7 +92,10 @@ const AdminPage = () => {
             </List>
           </Box>
         </Box>
-        <Box fullWidth sx={{ padding: 2, width: "100%" }}>
+        <Box
+          fullWidth
+          sx={{ padding: 2, width: "100%", height: "100%", overflow: "auto" }}
+        >
           {sections
             .filter((section) => section.id === currSection)
             .map((section) => section.page)}
